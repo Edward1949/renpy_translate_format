@@ -2,15 +2,15 @@
 
 ## 📋 概述
 
-本工具集用于自动化处理 RenPy 游戏翻译文件，通过唯一标识符精确匹配中文翻译内容，并将其合并到 SDK 生成的英文参考文件中。支持批量处理和交互式操作。
+本工具集用于自动化处理 RenPy 游戏翻译文件，通过唯一标识符精确匹配中文翻译内容，并将其合并到 SDK 生成的英文参考文件中。支持批量处理和交互式操作。现已集成文件准备功能，只需一个脚本即可完成从准备到合并的全流程。
 
 ## 📁 项目结构
 
 ```bash
 renpy-translation-project/
 ├── format.py              # 核心合并脚本
-├── prepare_files.py       # 脚本1：准备文件
-├── interactive_format.py  # 脚本2：交互式处理
+├── prepare_files.py       # 脚本1：准备文件（可选，已被 interactive 集成）
+├── interactive_format.py  # 脚本2：交互式处理（集成 prepare 功能）
 ├── schinese/              # 原始中文翻译目录
 │   ├── scripts/
 │   └── scripts1/
@@ -28,12 +28,23 @@ renpy-translation-project/
 - Python 3.6 或更高版本
 - 无需额外依赖
 
-### 2. 准备文件
-```bash
-# 基本用法
-python prepare_files.py schinese english format
+### 2. 准备文件（两种方式）
 
-# 示例（假设目录结构如上所述）
+**方式一：使用 interactive_format.py 的命令行参数（推荐）**
+```bash
+# 直接通过参数准备文件
+python interactive_format.py --prepare ./schinese ./english ./format
+```
+
+**方式二：在交互式界面中准备**
+```bash
+# 启动交互式界面
+python interactive_format.py format
+# 然后在菜单中选择选项 0 进行文件准备
+```
+
+**方式三：单独运行 prepare_files.py（兼容旧版）**
+```bash
 python prepare_files.py ./schinese ./english ./format
 ```
 
@@ -42,7 +53,7 @@ python prepare_files.py ./schinese ./english ./format
 # 使用默认模式（推荐）
 python interactive_format.py format
 
-# 指定使用subprocess模式
+# 指定使用 subprocess 模式
 python interactive_format.py format --mode subprocess
 
 # 指定目录和模式
@@ -69,7 +80,7 @@ python format.py <参考文件> <原文文件> <输出文件>
 2. 处理参考文件，将原文翻译内容填入空对话行
 3. 支持角色名和表情标签的格式（如 `Toord ""` 或 `Cassidy blush ""`）
 
-### prepare_files.py（文件准备脚本）
+### prepare_files.py（文件准备脚本，可选）
 **功能**：复制并重命名 schinese 和 english 文件到工作目录。
 
 **处理规则**：
@@ -85,12 +96,13 @@ python format.py <参考文件> <原文文件> <输出文件>
   已创建: common.rpy
 ```
 
-### interactive_format.py（交互式处理脚本）
-**功能**：提供交互式界面，选择并合并翻译文件。
+### interactive_format.py（交互式处理脚本，集成 prepare）
+**功能**：提供交互式界面，选择并合并翻译文件。同时集成了文件准备功能，可通过菜单或命令行参数调用。
 
 **界面选项**：
 ```
 请选择操作:
+0. 准备文件（运行 prepare_files.py）
 1. 处理单个文件对
 2. 批量处理所有文件对
 3. 按目录批量处理
@@ -98,6 +110,12 @@ python format.py <参考文件> <原文文件> <输出文件>
 5. 重新扫描
 6. 退出
 ```
+
+**命令行参数**：
+- `directory`：要扫描的目录路径（默认当前目录）
+- `--format-script`：指定 format.py 脚本路径（默认当前目录）
+- `--mode`：执行模式，可选 `direct`（直接调用函数）或 `subprocess`（子进程），默认 `direct`
+- `--prepare CHINESE_DIR ENGLISH_DIR OUTPUT_DIR`：直接执行文件准备操作，完成后退出
 
 **执行模式**：
 - `direct` 模式：直接调用 format.py 函数（推荐）
@@ -164,18 +182,39 @@ A: 尝试以下方法：
 2. 使用 `direct` 模式避免 subprocess 编码问题
 3. 检查系统默认编码设置
 
+### Q5: 如何一次完成准备和合并？
+A: 使用 `--prepare` 参数准备文件后，再启动交互式界面处理：
+```bash
+# 准备文件
+python interactive_format.py --prepare ./schinese ./english ./format
+# 进入工作目录并启动交互式界面
+python interactive_format.py format
+```
+或者直接启动交互式界面后选择选项 0 进行准备，然后继续处理。
+
 ## 📝 使用示例
 
-### 完整工作流程
+### 完整工作流程（单脚本完成）
 ```bash
-# 1. 准备文件
-python prepare_files.py ./schinese ./english ./format
+# 1. 直接通过参数准备文件
+python interactive_format.py --prepare ./schinese ./english ./format
 
 # 2. 进入交互式界面
 python interactive_format.py ./format
 
 # 3. 在界面中选择批量处理所有文件
 # 4. 查看合并结果
+```
+
+### 完全交互式流程
+```bash
+# 启动交互式界面（假设 format 目录已存在或为空）
+python interactive_format.py ./format
+
+# 在菜单中：
+# - 选择 0，输入中文、英文、输出目录（例如：./schinese ./english ./format）
+# - 准备完成后选择 5 重新扫描
+# - 选择 2 批量处理所有文件
 ```
 
 ### 单文件处理
@@ -187,3 +226,4 @@ python format.py ./format/scripts/commonE.rpy ./format/scripts/commonC.rpy ./for
 ---
 
 **提示**：首次使用建议先处理少量文件测试，确认无误后再进行批量处理。
+```
