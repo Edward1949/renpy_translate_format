@@ -20,14 +20,13 @@ def find_intermediate_files(directory):
                     print(f"警告: 文件 {file} 没有对应的合并文件，将不会删除。")
     return to_delete
 
-def delete_intermediate_files(directory, confirm=True, dry_run=False):
+def delete_intermediate_files(directory, confirm=True):
     """
     删除指定目录下的所有中间文件（xxxC.rpy 和 xxxE.rpy），前提是存在对应的 xxx.rpy。
     
     Args:
         directory: 要扫描的目录
         confirm: 是否要求用户确认
-        dry_run: 如果为 True，只显示要删除的文件而不实际删除
     
     Returns:
         int: 删除的文件数量
@@ -45,10 +44,6 @@ def delete_intermediate_files(directory, confirm=True, dry_run=False):
     for f in to_delete:
         rel = os.path.relpath(f, directory) if directory != '.' else f
         print(f"  {rel}")
-
-    if dry_run:
-        print("【模拟运行】不会实际删除文件。")
-        return len(to_delete)
 
     if confirm:
         resp = input(f"确认删除以上 {len(to_delete)} 个文件？(y/N): ").strip().lower()
@@ -71,10 +66,9 @@ def main():
     parser = argparse.ArgumentParser(description='删除 RenPy 翻译工作目录中的中间文件 (xxxC.rpy 和 xxxE.rpy)')
     parser.add_argument('directory', nargs='?', default='.', help='要扫描的目录路径（默认当前目录）')
     parser.add_argument('-y', '--yes', action='store_true', help='跳过确认提示')
-    parser.add_argument('-n', '--dry-run', action='store_true', help='模拟运行，不实际删除文件')
     args = parser.parse_args()
 
-    delete_intermediate_files(args.directory, confirm=not args.yes, dry_run=args.dry_run)
+    delete_intermediate_files(args.directory, confirm=not args.yes)
 
 if __name__ == "__main__":
     main()
