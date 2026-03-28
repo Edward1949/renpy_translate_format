@@ -59,11 +59,11 @@ def find_file_pairs(directory):
 
 def display_file_pairs(file_pairs):
     """
-    显示可用的文件对供用户选择
+    显示可用的文件对供用户选择，返回所有文件对的列表
     """
     if not file_pairs:
         print("未找到任何可处理的文件对！")
-        return -1
+        return []  # 返回空列表
 
     print(f"找到 {len(file_pairs)} 个文件对：")
     print("=" * 80)
@@ -262,40 +262,47 @@ def main():
         print(f"错误: format.py脚本 {args.format_script} 不存在")
         return
 
-    # 查找文件对
+    # 扫描文件对
     print(f"正在扫描目录: {args.directory}")
     file_pairs = find_file_pairs(args.directory)
+    all_pairs = display_file_pairs(file_pairs)  # 无论是否有文件对，都返回列表
 
-    if not file_pairs:
-        print("没有找到任何文件对！请确保已运行 prepare_files.py 或使用 '--prepare' 参数准备文件。")
-        return
-
-    # 显示文件对
-    all_pairs = display_file_pairs(file_pairs)
-    if not all_pairs:
-        return
-
+    # 进入主循环
     while True:
-        try:
-            print(f"\n当前模式: {args.mode}")
-            print("请选择操作:")
-            print("0. 准备文件（运行 prepare_files.py）")
+        # 显示当前状态
+        if all_pairs:
+            print(f"\n当前有 {len(all_pairs)} 个文件对可用。")
+        else:
+            print("\n当前没有文件对。请先使用选项0准备文件，然后选项5重新扫描。")
+
+        print(f"当前模式: {args.mode}")
+        print("请选择操作:")
+        print("0. 准备文件（运行 prepare_files.py）")
+        if all_pairs:
             print("1. 处理单个文件对")
             print("2. 批量处理所有文件对")
             print("3. 按目录批量处理")
-            print("4. 切换执行模式")
-            print("5. 重新扫描")
-            print("6. 退出")
+        else:
+            print("1. (不可用，无文件对)")
+            print("2. (不可用，无文件对)")
+            print("3. (不可用，无文件对)")
+        print("4. 切换执行模式")
+        print("5. 重新扫描")
+        print("6. 退出")
 
-            choice = input("请输入选项 (0-6): ").strip()
+        choice = input("请输入选项 (0-6): ").strip()
 
+        try:
             if choice == '0':
                 perform_prepare()
-                # 准备完成后，可以提示重新扫描
+                # 准备完成后提示重新扫描
                 print("\n准备完成。如果需要处理新生成的文件，请使用选项5重新扫描。")
                 continue
 
             elif choice == '1':
+                if not all_pairs:
+                    print("当前没有文件对，无法处理。请先执行选项0准备文件，然后选项5重新扫描。")
+                    continue
                 # 选择单个文件对
                 try:
                     selection = input(f"请输入要处理的文件编号 (1-{len(all_pairs)}): ").strip()
@@ -325,6 +332,9 @@ def main():
                     print("错误: 请输入有效的数字")
 
             elif choice == '2':
+                if not all_pairs:
+                    print("当前没有文件对，无法处理。请先执行选项0准备文件，然后选项5重新扫描。")
+                    continue
                 # 批量处理所有文件对
                 confirm = input(f"确定要批量处理所有 {len(all_pairs)} 个文件对吗？(y/n): ").strip().lower()
                 if confirm == 'y':
@@ -352,6 +362,9 @@ def main():
                     print(f"成功: {success_count}/{len(all_pairs)}")
 
             elif choice == '3':
+                if not all_pairs:
+                    print("当前没有文件对，无法处理。请先执行选项0准备文件，然后选项5重新扫描。")
+                    continue
                 # 按目录批量处理
                 print("\n可用目录:")
                 directories = sorted(set(pair['rel_path'] for pair in all_pairs))
@@ -417,8 +430,6 @@ def main():
                 print("重新扫描目录...")
                 file_pairs = find_file_pairs(args.directory)
                 all_pairs = display_file_pairs(file_pairs)
-                if not all_pairs:
-                    return
 
             elif choice == '6':
                 print("再见！")
