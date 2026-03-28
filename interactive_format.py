@@ -101,9 +101,7 @@ def display_file_pairs(file_pairs):
     return all_pairs
 
 def format_single_pair(c_file, e_file, merge_file, format_script="format.py"):
-    """
-    使用format.py处理单个文件对，使用系统默认编码
-    """
+    """使用 subprocess 模式处理单个文件对"""
     print(f"\n正在处理: {os.path.basename(c_file)} -> {os.path.basename(merge_file)}")
     print(f"中文文件: {c_file}")
     print(f"英文文件: {e_file}")
@@ -119,7 +117,6 @@ def format_single_pair(c_file, e_file, merge_file, format_script="format.py"):
 
     # 构建命令 - 确保使用正确的编码
     command = ["python", format_script, e_file, c_file, merge_file]
-
     try:
         # 使用系统默认编码执行命令
         result = subprocess.run(command,
@@ -147,15 +144,12 @@ def format_single_pair(c_file, e_file, merge_file, format_script="format.py"):
         else:
             print(f"✗ 处理失败: 返回码 {result.returncode}")
             return False
-
     except Exception as e:
         print(f"✗ 执行出错: {e}")
         return False
 
 def format_single_pair_direct(c_file, e_file, merge_file):
-    """
-    直接调用format.py的函数，避免subprocess编码问题
-    """
+    """直接调用 format.py 函数，避免子进程编码问题"""
     print(f"\n正在处理: {os.path.basename(c_file)} -> {os.path.basename(merge_file)}")
     print(f"中文文件: {c_file}")
     print(f"英文文件: {e_file}")
@@ -189,7 +183,7 @@ def format_single_pair_direct(c_file, e_file, merge_file):
         return False
 
 def perform_prepare():
-    """执行准备文件操作（调用 prepare_files.py）"""
+    """交互式执行准备文件操作"""
     if prepare_files is None:
         print("错误: prepare_files 模块不可用，无法执行准备操作。")
         return
@@ -222,52 +216,25 @@ def perform_prepare():
     try:
         prepare_files.prepare_translation_files(chinese_dir, english_dir, output_dir)
         print(f"\n准备完成！文件已输出到: {output_dir}")
+        return output_dir
     except Exception as e:
         print(f"准备过程中出错: {e}")
-
-def main():
-    parser = argparse.ArgumentParser(description='交互式选择并合并翻译文件')
-    parser.add_argument('directory', nargs='?', default='.', help='要扫描的目录路径（默认当前目录）')
-    parser.add_argument('--format-script', default='format.py', help='format.py脚本路径（默认当前目录）')
-    parser.add_argument('--mode', choices=['direct', 'subprocess'], default='direct',
-                       help='执行模式：direct-直接调用函数，subprocess-使用子进程')
-    parser.add_argument('--prepare', nargs=3, metavar=('CHINESE_DIR', 'ENGLISH_DIR', 'OUTPUT_DIR'),
-                       help='直接执行准备文件操作，然后退出')
-
-    args = parser.parse_args()
-
-    # 如果指定了 --prepare，则执行准备操作后退出
-    if args.prepare:
-        chinese_dir, english_dir, output_dir = args.prepare
-        if not os.path.exists(chinese_dir):
-            print(f"错误: 中文目录 {chinese_dir} 不存在")
-            return
-        if not os.path.exists(english_dir):
-            print(f"错误: 英文目录 {english_dir} 不存在")
-            return
-        if prepare_files is None:
-            print("错误: prepare_files 模块不可用，无法执行准备操作。")
-            return
-        prepare_files.prepare_translation_files(chinese_dir, english_dir, output_dir)
-        print(f"准备完成！文件已输出到: {output_dir}")
         return
 
-    # 检查目录是否存在
-    if not os.path.exists(args.directory):
-        print(f"错误: 目录 {args.directory} 不存在")
+def run_interactive(directory, mode, format_script):
+    """交互式处理主循环"""
+    if not os.path.exists(directory):
+        print(f"错误: 目录 {directory} 不存在")
         return
 
-    # 检查format.py是否存在（如果是subprocess模式）
-    if args.mode == 'subprocess' and not os.path.exists(args.format_script):
-        print(f"错误: format.py脚本 {args.format_script} 不存在")
+    if mode == 'subprocess' and not os.path.exists(format_script):
+        print(f"错误: format.py脚本 {format_script} 不存在")
         return
 
-    # 扫描文件对
-    print(f"正在扫描目录: {args.directory}")
-    file_pairs = find_file_pairs(args.directory)
-    all_pairs = display_file_pairs(file_pairs)  # 无论是否有文件对，都返回列表
+    print(f"正在扫描目录: {directory}")
+    file_pairs = find_file_pairs(directory)
+    all_pairs = display_file_pairs(file_pairs)
 
-    # 进入主循环
     while True:
         # 显示当前状态
         if all_pairs:
@@ -275,7 +242,7 @@ def main():
         else:
             print("\n当前没有文件对。请先使用选项0准备文件，然后选项5重新扫描。")
 
-        print(f"当前模式: {args.mode}")
+        print(f"当前模式: {mode}")
         print("请选择操作:")
         print("0. 准备文件（运行 prepare_files.py）")
         if all_pairs:
@@ -294,8 +261,15 @@ def main():
 
         try:
             if choice == '0':
-                perform_prepare()
-                # 准备完成后提示重新扫描
+                new_dir = perform_prepare()
+                if new_dir:
+                    # 询问是否切换到输出目录
+                    switch = input(f"是否将工作目录切换到 {new_dir}？(y/n): ").strip().lower()
+                    if switch == 'y':
+                        directory = new_dir
+                        print(f"工作目录已切换到: {directory}")
+                    else:
+                        print("保持当前工作目录。")
                 print("\n准备完成。如果需要处理新生成的文件，请使用选项5重新扫描。")
                 continue
 
@@ -312,20 +286,10 @@ def main():
                     index = int(selection) - 1
                     if 0 <= index < len(all_pairs):
                         pair = all_pairs[index]
-
-                        if args.mode == 'direct':
-                            format_single_pair_direct(
-                                pair['c_file'],
-                                pair['e_file'],
-                                pair['merge_file']
-                            )
+                        if mode == 'direct':
+                            format_single_pair_direct(pair['c_file'], pair['e_file'], pair['merge_file'])
                         else:
-                            format_single_pair(
-                                pair['c_file'],
-                                pair['e_file'],
-                                pair['merge_file'],
-                                args.format_script
-                            )
+                            format_single_pair(pair['c_file'], pair['e_file'], pair['merge_file'], format_script)
                     else:
                         print(f"错误: 编号必须在 1-{len(all_pairs)} 之间")
                 except ValueError:
@@ -341,25 +305,13 @@ def main():
                     success_count = 0
                     for i, pair in enumerate(all_pairs, 1):
                         print(f"\n[{i}/{len(all_pairs)}] ", end='')
-
-                        if args.mode == 'direct':
-                            if format_single_pair_direct(
-                                pair['c_file'],
-                                pair['e_file'],
-                                pair['merge_file']
-                            ):
+                        if mode == 'direct':
+                            if format_single_pair_direct(pair['c_file'], pair['e_file'], pair['merge_file']):
                                 success_count += 1
                         else:
-                            if format_single_pair(
-                                pair['c_file'],
-                                pair['e_file'],
-                                pair['merge_file'],
-                                args.format_script
-                            ):
+                            if format_single_pair(pair['c_file'], pair['e_file'], pair['merge_file'], format_script):
                                 success_count += 1
-
-                    print(f"\n批量处理完成！")
-                    print(f"成功: {success_count}/{len(all_pairs)}")
+                    print(f"\n批量处理完成！成功: {success_count}/{len(all_pairs)}")
 
             elif choice == '3':
                 if not all_pairs:
@@ -386,25 +338,13 @@ def main():
                                 success_count = 0
                                 for i, pair in enumerate(dir_pairs, 1):
                                     print(f"\n[{i}/{len(dir_pairs)}] ", end='')
-
-                                    if args.mode == 'direct':
-                                        if format_single_pair_direct(
-                                            pair['c_file'],
-                                            pair['e_file'],
-                                            pair['merge_file']
-                                        ):
+                                    if mode == 'direct':
+                                        if format_single_pair_direct(pair['c_file'], pair['e_file'], pair['merge_file']):
                                             success_count += 1
                                     else:
-                                        if format_single_pair(
-                                            pair['c_file'],
-                                            pair['e_file'],
-                                            pair['merge_file'],
-                                            args.format_script
-                                        ):
+                                        if format_single_pair(pair['c_file'], pair['e_file'], pair['merge_file'], format_script):
                                             success_count += 1
-
-                                print(f"\n目录 {dir_display} 处理完成！")
-                                print(f"成功: {success_count}/{len(dir_pairs)}")
+                                print(f"\n目录 {dir_display} 处理完成！成功: {success_count}/{len(dir_pairs)}")
                         else:
                             print(f"错误: 目录编号必须在 1-{len(directories)} 之间")
                 except ValueError:
@@ -412,15 +352,15 @@ def main():
 
             elif choice == '4':
                 # 切换执行模式
-                print("\n当前模式:", args.mode)
+                print("\n当前模式:", mode)
                 print("1. direct - 直接调用函数（推荐）")
                 print("2. subprocess - 使用子进程")
                 mode_choice = input("请选择模式 (1-2): ").strip()
                 if mode_choice == '1':
-                    args.mode = 'direct'
+                    mode = 'direct'
                     print("已切换到 direct 模式")
                 elif mode_choice == '2':
-                    args.mode = 'subprocess'
+                    mode = 'subprocess'
                     print("已切换到 subprocess 模式")
                 else:
                     print("无效选择，保持当前模式")
@@ -428,7 +368,7 @@ def main():
             elif choice == '5':
                 # 重新扫描
                 print("重新扫描目录...")
-                file_pairs = find_file_pairs(args.directory)
+                file_pairs = find_file_pairs(directory)
                 all_pairs = display_file_pairs(file_pairs)
 
             elif choice == '6':
@@ -443,6 +383,55 @@ def main():
             break
         except Exception as e:
             print(f"发生错误: {e}")
+
+def main():
+    parser = argparse.ArgumentParser(description='交互式选择并合并翻译文件')
+    parser.add_argument('directory', nargs='?', default='.', help='要扫描的目录路径（默认当前目录）')
+    parser.add_argument('--format-script', default='format.py', help='format.py脚本路径（默认当前目录）')
+    parser.add_argument('--mode', choices=['direct', 'subprocess'], default='direct',
+                        help='执行模式：direct-直接调用函数，subprocess-使用子进程')
+    parser.add_argument('--prepare', nargs=3, metavar=('CHINESE_DIR', 'ENGLISH_DIR', 'OUTPUT_DIR'),
+                        help='直接执行准备文件操作，然后询问是否进入交互界面')
+
+    args = parser.parse_args()
+
+    # 如果提供了 --prepare，先执行准备，再决定是否进入交互
+    if args.prepare:
+        chinese_dir, english_dir, output_dir = args.prepare
+        if not os.path.exists(chinese_dir):
+            print(f"错误: 中文目录 {chinese_dir} 不存在")
+            return
+        if not os.path.exists(english_dir):
+            print(f"错误: 英文目录 {english_dir} 不存在")
+            return
+        if prepare_files is None:
+            print("错误: prepare_files 模块不可用，无法执行准备操作。")
+            return
+
+        print("正在准备文件...")
+        try:
+            prepare_files.prepare_translation_files(chinese_dir, english_dir, output_dir)
+            print(f"准备完成！文件已输出到: {output_dir}")
+        except Exception as e:
+            print(f"准备过程中出错: {e}")
+            return
+
+        # 询问是否进入交互界面
+        while True:
+            choice = input("是否进入交互界面处理翻译文件？(y/n): ").strip().lower()
+            if choice in ('y', 'yes'):
+                # 使用输出目录作为新的工作目录，并进入交互
+                run_interactive(output_dir, args.mode, args.format_script)
+                break
+            elif choice in ('n', 'no', ''):
+                print("退出程序。")
+                break
+            else:
+                print("无效输入，请输入 y 或 n。")
+        return
+
+    # 没有 --prepare，直接进入交互
+    run_interactive(args.directory, args.mode, args.format_script)
 
 if __name__ == "__main__":
     main()
