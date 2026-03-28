@@ -1,0 +1,189 @@
+# RenPy 翻译工具集
+
+## 📋 概述
+
+本工具集用于自动化处理 RenPy 游戏翻译文件，通过唯一标识符精确匹配中文翻译内容，并将其合并到 SDK 生成的英文参考文件中。支持批量处理和交互式操作。
+
+## 📁 项目结构
+
+```bash
+renpy-translation-project/
+├── format.py              # 核心合并脚本
+├── prepare_files.py       # 脚本1：准备文件
+├── interactive_format.py  # 脚本2：交互式处理
+├── schinese/              # 原始中文翻译目录
+│   ├── scripts/
+│   └── scripts1/
+├── english/               # SDK生成的英文目录
+│   ├── scripts/
+│   └── scripts1/
+└── format/                # 工作目录（脚本1生成）
+    ├── scripts/
+    └── scripts1/
+```
+
+## 🚀 快速开始
+
+### 1. 安装要求
+- Python 3.6 或更高版本
+- 无需额外依赖
+
+### 2. 准备文件
+```bash
+# 基本用法
+python prepare_files.py schinese english format
+
+# 示例（假设目录结构如上所述）
+python prepare_files.py ./schinese ./english ./format
+```
+
+### 3. 交互式处理
+```bash
+# 使用默认模式（推荐）
+python interactive_format.py format
+
+# 指定使用subprocess模式
+python interactive_format.py format --mode subprocess
+
+# 指定目录和模式
+python interactive_format.py E:\game\翻译工具\renpy_format\format --mode direct
+```
+
+## 🛠️ 脚本说明
+
+### format.py（核心合并脚本）
+**功能**：将原文翻译内容合并到参考 RenPy 文件中，通过唯一标识符精确匹配。
+
+**使用方式**：
+```bash
+python format.py <参考文件> <原文文件> <输出文件>
+```
+
+**参数说明**：
+- `参考文件`：SDK 输出的英文参考文件（xxxE.rpy）
+- `原文文件`：包含中文翻译的原始文件（xxxC.rpy）
+- `输出文件`：合并后的输出文件（xxx.rpy）
+
+**处理逻辑**：
+1. 提取原文文件中的翻译内容（以唯一标识符为键）
+2. 处理参考文件，将原文翻译内容填入空对话行
+3. 支持角色名和表情标签的格式（如 `Toord ""` 或 `Cassidy blush ""`）
+
+### prepare_files.py（文件准备脚本）
+**功能**：复制并重命名 schinese 和 english 文件到工作目录。
+
+**处理规则**：
+- 中英文都有的文件 → 分别复制为 `xxxC.rpy` 和 `xxxE.rpy`，并创建空的 `xxx.rpy`
+- 只有中文没有英文的文件 → 记录警告
+- 只有英文没有中文的文件 → 记录警告
+
+**输出示例**：
+```
+处理: scripts/common.rpy
+  已复制: commonC.rpy
+  已复制: commonE.rpy
+  已创建: common.rpy
+```
+
+### interactive_format.py（交互式处理脚本）
+**功能**：提供交互式界面，选择并合并翻译文件。
+
+**界面选项**：
+```
+请选择操作:
+1. 处理单个文件对
+2. 批量处理所有文件对
+3. 按目录批量处理
+4. 切换执行模式
+5. 重新扫描
+6. 退出
+```
+
+**执行模式**：
+- `direct` 模式：直接调用 format.py 函数（推荐）
+- `subprocess` 模式：通过子进程调用
+
+## 🔧 工作原理
+
+### 标识符匹配
+工具通过 RenPy 的 `translate` 块中的唯一标识符进行精确匹配：
+
+```renpy
+# 示例标识符
+translate chinese gym_lesson1outro_59225ee3:
+```
+
+### 翻译提取
+从原文文件提取包含中文字符的对话内容：
+- 支持 `"中文文本"`
+- 支持 `角色名 "中文文本"`
+- 临时支持 `"..."` 和 `"…"`
+
+### 合并过程
+1. **查找空对话行**：在参考文件中找到 `""` 或 `角色名 ""` 的行
+2. **标识符匹配**：通过当前 translate 块的标识符查找对应翻译
+3. **内容填充**：用中文翻译替换空引号
+4. **保留格式**：保持原有缩进和角色名格式
+
+## 📊 文件命名规则
+
+在工作目录 (`format/`) 中：
+| 文件类型 | 命名规则 | 说明 |
+|---------|---------|------|
+| 中文文件 | `xxxC.rpy` | 原始中文翻译 |
+| 英文文件 | `xxxE.rpy` | SDK生成的英文参考 |
+| 合并文件 | `xxx.rpy` | 合并后的输出 |
+
+## ⚠️ 注意事项
+
+1. **目录结构一致性**：确保 `schinese/` 和 `english/` 的目录结构完全相同
+2. **编码问题**：所有文件均使用 UTF-8 编码
+3. **临时功能**：`"..."` 和 `"…"` 的处理为临时支持，可根据需要删除相关代码
+4. **备份建议**：处理前建议备份原始文件
+5. **标识符匹配**：确保中英文文件的 translate 标识符完全一致
+
+## 🔍 常见问题
+
+### Q1: 如何处理只有中文或只有英文的文件？
+A: `prepare_files.py` 会统计并显示这些文件，但不会复制到工作目录。建议检查原始目录的文件完整性。
+
+### Q2: 为什么有些翻译没有成功合并？
+A: 可能原因：
+- 标识符不匹配
+- 翻译内容不包含中文字符
+- 参考文件中没有对应的空对话行
+
+### Q3: 如何切换执行模式？
+A: 在 `interactive_format.py` 界面中选择选项 4，然后选择模式：
+- `1` 切换到 direct 模式
+- `2` 切换到 subprocess 模式
+
+### Q4: 处理过程中出现编码错误怎么办？
+A: 尝试以下方法：
+1. 确保所有文件使用 UTF-8 编码
+2. 使用 `direct` 模式避免 subprocess 编码问题
+3. 检查系统默认编码设置
+
+## 📝 使用示例
+
+### 完整工作流程
+```bash
+# 1. 准备文件
+python prepare_files.py ./schinese ./english ./format
+
+# 2. 进入交互式界面
+python interactive_format.py ./format
+
+# 3. 在界面中选择批量处理所有文件
+# 4. 查看合并结果
+```
+
+### 单文件处理
+```bash
+# 直接使用 format.py 处理单个文件
+python format.py ./format/scripts/commonE.rpy ./format/scripts/commonC.rpy ./format/scripts/common.rpy
+```
+
+---
+
+**提示**：首次使用建议先处理少量文件测试，确认无误后再进行批量处理。

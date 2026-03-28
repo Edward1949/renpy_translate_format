@@ -1,0 +1,31 @@
+# 基本用法
+python prepare_files.py schinese english format
+
+# 示例（假设目录结构如上所述）
+python prepare_files.py ./schinese ./english ./format
+
+
+# 使用默认模式（推荐）
+python interactive_format.py format
+
+# 指定使用subprocess模式
+python interactive_format.py format --mode subprocess
+
+# 指定目录和模式
+python interactive_format.py E:\game\翻译工具\renpy_format\format --mode direct
+
+
+renpy-translation-project/
+├── format.py              # 核心合并脚本
+├── prepare_files.py       # 脚本1：准备文件
+├── interactive_format.py  # 脚本2：交互式处理
+├── schinese/              # 原始中文翻译目录
+│   ├── scripts/
+│   └── scripts1/
+├── english/               # SDK生成的英文目录
+│   ├── scripts/
+│   └── scripts1/
+└── format/                # 工作目录（脚本1生成）
+    ├── scripts/
+    └── scripts1/
+
