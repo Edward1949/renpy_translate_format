@@ -196,7 +196,7 @@ def perform_prepare():
 
     print("\n===== 准备文件 =====")
     print("请输入以下目录路径：")
-    chinese_dir = input("中文目录 (schinese): ").strip()
+    chinese_dir = input("中文目录 (chinese): ").strip()
     if not chinese_dir:
         print("取消操作。")
         return

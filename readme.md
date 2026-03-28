@@ -11,7 +11,7 @@ renpy-translation-project/
 ├── format.py              # 核心合并脚本
 ├── prepare_files.py       # 脚本1：准备文件（可选，已被 interactive 集成）
 ├── interactive_format.py  # 脚本2：交互式处理（集成 prepare 功能）
-├── schinese/              # 原始中文翻译目录
+├── chinese/              # 原始中文翻译目录
 │   ├── scripts/
 │   └── scripts1/
 ├── english/               # SDK生成的英文目录
@@ -33,7 +33,7 @@ renpy-translation-project/
 **方式一：使用 interactive_format.py 的命令行参数（推荐）**
 ```bash
 # 直接通过参数准备文件
-python interactive_format.py --prepare ./schinese ./english ./format
+python interactive_format.py --prepare ./chinese ./english ./format
 ```
 
 **方式二：在交互式界面中准备**
@@ -45,7 +45,7 @@ python interactive_format.py format
 
 **方式三：单独运行 prepare_files.py（兼容旧版）**
 ```bash
-python prepare_files.py ./schinese ./english ./format
+python prepare_files.py ./chinese ./english ./format
 ```
 
 ### 3. 交互式处理
@@ -81,7 +81,7 @@ python format.py <参考文件> <原文文件> <输出文件>
 3. 支持角色名和表情标签的格式（如 `Toord ""` 或 `Cassidy blush ""`）
 
 ### prepare_files.py（文件准备脚本，可选）
-**功能**：复制并重命名 schinese 和 english 文件到工作目录。
+**功能**：复制并重命名 chinese 和 english 文件到工作目录。
 
 **处理规则**：
 - 中英文都有的文件 → 分别复制为 `xxxC.rpy` 和 `xxxE.rpy`，并创建空的 `xxx.rpy`
@@ -154,7 +154,7 @@ translate chinese gym_lesson1outro_59225ee3:
 
 ## ⚠️ 注意事项
 
-1. **目录结构一致性**：确保 `schinese/` 和 `english/` 的目录结构完全相同
+1. **目录结构一致性**：确保 `chinese/` 和 `english/` 的目录结构完全相同
 2. **编码问题**：所有文件均使用 UTF-8 编码
 3. **临时功能**：`"..."` 和 `"…"` 的处理为临时支持，可根据需要删除相关代码
 4. **备份建议**：处理前建议备份原始文件
@@ -186,7 +186,7 @@ A: 尝试以下方法：
 A: 使用 `--prepare` 参数准备文件后，再启动交互式界面处理：
 ```bash
 # 准备文件
-python interactive_format.py --prepare ./schinese ./english ./format
+python interactive_format.py --prepare ./chinese ./english ./format
 # 进入工作目录并启动交互式界面
 python interactive_format.py format
 ```
@@ -197,7 +197,7 @@ python interactive_format.py format
 ### 完整工作流程（单脚本完成）
 ```bash
 # 1. 直接通过参数准备文件
-python interactive_format.py --prepare ./schinese ./english ./format
+python interactive_format.py --prepare ./chinese ./english ./format
 
 # 2. 进入交互式界面
 python interactive_format.py ./format
@@ -212,7 +212,7 @@ python interactive_format.py ./format
 python interactive_format.py ./format
 
 # 在菜单中：
-# - 选择 0，输入中文、英文、输出目录（例如：./schinese ./english ./format）
+# - 选择 0，输入中文、英文、输出目录（例如：./chinese ./english ./format）
 # - 准备完成后选择 5 重新扫描
 # - 选择 2 批量处理所有文件
 ```

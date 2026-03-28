@@ -4,6 +4,8 @@
 import os
 import shutil
 import argparse
+import colorama
+colorama.init()
 
 def prepare_translation_files(chinese_dir, english_dir, output_dir):
     """
@@ -96,21 +98,21 @@ def prepare_translation_files(chinese_dir, english_dir, output_dir):
     
     # 输出只有中文没有英文的文件
     if only_schinese_files:
-        print(f"\n警告: {len(only_schinese_files)} 个文件只有中文版本（缺少对应的英文版本）:")
+        print(f"{colorama.Fore.RED}\n警告: {len(only_schinese_files)} 个文件只有中文版本（缺少对应的英文版本）:{colorama.Style.RESET_ALL}")
         for i, file_rel_path in enumerate(sorted(only_schinese_files), 1):
-            print(f"  {i:3d}. {file_rel_path}")
+            print(f"{colorama.Fore.RED}  {i:3d}. {file_rel_path}{colorama.Style.RESET_ALL}")
     
     # 输出只有英文没有中文的文件
     if only_english_files:
-        print(f"\n警告: {len(only_english_files)} 个文件只有英文版本（缺少对应的中文版本）:")
+        print(f"{colorama.Fore.RED}\n警告: {len(only_english_files)} 个文件只有英文版本（缺少对应的中文版本）:{colorama.Style.RESET_ALL}")
         for i, file_rel_path in enumerate(sorted(only_english_files), 1):
-            print(f"  {i:3d}. {file_rel_path}")
+            print(f"{colorama.Fore.RED}  {i:3d}. {file_rel_path}{colorama.Style.RESET_ALL}")
     
     print(f"\n统计摘要:")
     print(f"-" * 50)
     print(f"中英文都有的文件: {len(common_files)} 个")
-    print(f"只有中文没有英文的文件: {len(only_schinese_files)} 个")
-    print(f"只有英文没有中文的文件: {len(only_english_files)} 个")
+    print(f"{colorama.Fore.RED}只有中文没有英文的文件: {len(only_schinese_files)} 个{colorama.Style.RESET_ALL}")
+    print(f"{colorama.Fore.RED}只有英文没有中文的文件: {len(only_english_files)} 个{colorama.Style.RESET_ALL}")
     print(f"总计中文文件: {len(schinese_files)} 个")
     print(f"总计英文文件: {len(english_files)} 个")
 
