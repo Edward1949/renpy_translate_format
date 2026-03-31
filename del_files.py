@@ -34,7 +34,7 @@ def delete_intermediate_files(directory, confirm=True):
         int: 删除的文件数量
     """
     if not os.path.exists(directory):
-        print(f"错误: 目录 {directory} 不存在")
+        print(f"{colorama.Fore.RED}错误: 目录 {directory} 不存在{colorama.Style.RESET_ALL}")
         return 0
 
     to_delete = find_intermediate_files(directory)
@@ -60,7 +60,7 @@ def delete_intermediate_files(directory, confirm=True):
             print(f"已删除: {f}")
             deleted += 1
         except Exception as e:
-            print(f"删除失败 {f}: {e}")
+            print(f"{colorama.Fore.RED}删除失败 {f}: {e}{colorama.Style.RESET_ALL}")
     print(f"成功删除 {deleted}/{len(to_delete)} 个文件。")
     return deleted
 

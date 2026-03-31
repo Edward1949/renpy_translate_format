@@ -10,14 +10,18 @@ colorama.init()
 def prepare_translation_files(chinese_dir, english_dir, output_dir):
     """
     准备翻译文件：复制并重命名schinese和english文件到指定目录
+    对于中英文都有的文件 → xxxC.rpy / xxxE.rpy + 空 xxx.rpy
+    对于只有中文或只有英文的文件 → 保留原文件名直接复制
     """
     # 创建输出目录结构
     os.makedirs(output_dir, exist_ok=True)
     
     # 用于统计
     files_processed = 0
-    missing_english_files = []  # 中文有，英文没有
-    missing_chinese_files = []  # 英文有，中文没有
+    single_chinese_copied = 0
+    single_english_copied = 0
+    missing_english_files = []   # 中文有，英文没有
+    missing_chinese_files = []   # 英文有，中文没有
     
     # 首先，收集所有文件的相对路径
     schinese_files = {}
@@ -85,24 +89,55 @@ def prepare_translation_files(chinese_dir, english_dir, output_dir):
             f.write("")
         
         if rel_path:
-            print(f"处理: {rel_path}\\{file}")
+            print(f"{colorama.Fore.GREEN}处理: {rel_path}\\{file}{colorama.Style.RESET_ALL}")
         else:
-            print(f"处理: {file}")
-        print(f"  已复制: {os.path.basename(schinese_output)}")
-        print(f"  已复制: {os.path.basename(english_output)}")
-        print(f"  已创建: {os.path.basename(merge_output)}")
+            print(f"{colorama.Fore.GREEN}处理: {file}{colorama.Style.RESET_ALL}")
+        print(f"{colorama.Fore.GREEN}  已复制: {os.path.basename(schinese_output)}{colorama.Style.RESET_ALL}")
+        print(f"{colorama.Fore.GREEN}  已复制: {os.path.basename(english_output)}{colorama.Style.RESET_ALL}")
+        print(f"{colorama.Fore.GREEN}  已创建: {os.path.basename(merge_output)}{colorama.Style.RESET_ALL}")
         
         files_processed += 1
     
     print(f"\n共处理 {files_processed} 个文件对")
     
-    # 输出只有中文没有英文的文件
+    # 处理只有中文没有英文的文件（直接复制，保留原文件名）
+    if only_schinese_files:
+        print(f"{colorama.Fore.YELLOW}\n处理只有中文的文件（直接复制，保留原文件名）:{colorama.Style.RESET_ALL}")
+        for file_rel_path in sorted(only_schinese_files):
+            file = os.path.basename(file_rel_path)
+            rel_path = os.path.dirname(file_rel_path) if os.path.dirname(file_rel_path) else ''
+            src_path = schinese_files[file_rel_path]
+            
+            output_subdir = os.path.join(output_dir, rel_path)
+            os.makedirs(output_subdir, exist_ok=True)
+            dst_path = os.path.join(output_subdir, file)
+            shutil.copy2(src_path, dst_path)
+            print(f"{colorama.Fore.YELLOW}  复制: {file_rel_path}{colorama.Style.RESET_ALL}")
+            single_chinese_copied += 1
+        print(f"{colorama.Fore.YELLOW}共复制 {single_chinese_copied} 个只有中文的文件{colorama.Style.RESET_ALL}")
+    
+    # 处理只有英文没有中文的文件（直接复制，保留原文件名）
+    if only_english_files:
+        print(f"{colorama.Fore.YELLOW}\n处理只有英文的文件（直接复制，保留原文件名）:{colorama.Style.RESET_ALL}")
+        for file_rel_path in sorted(only_english_files):
+            file = os.path.basename(file_rel_path)
+            rel_path = os.path.dirname(file_rel_path) if os.path.dirname(file_rel_path) else ''
+            src_path = english_files[file_rel_path]
+            
+            output_subdir = os.path.join(output_dir, rel_path)
+            os.makedirs(output_subdir, exist_ok=True)
+            dst_path = os.path.join(output_subdir, file)
+            shutil.copy2(src_path, dst_path)
+            print(f"{colorama.Fore.YELLOW}  复制: {file_rel_path}{colorama.Style.RESET_ALL}")
+            single_english_copied += 1
+        print(f"{colorama.Fore.YELLOW}共复制 {single_english_copied} 个只有英文的文件{colorama.Style.RESET_ALL}")
+    
+    # 输出警告信息（仅列出缺少对应语言的文件，但已复制）
     if only_schinese_files:
         print(f"{colorama.Fore.RED}\n警告: {len(only_schinese_files)} 个文件只有中文版本（缺少对应的英文版本）:{colorama.Style.RESET_ALL}")
         for i, file_rel_path in enumerate(sorted(only_schinese_files), 1):
             print(f"{colorama.Fore.RED}  {i:3d}. {file_rel_path}{colorama.Style.RESET_ALL}")
     
-    # 输出只有英文没有中文的文件
     if only_english_files:
         print(f"{colorama.Fore.RED}\n警告: {len(only_english_files)} 个文件只有英文版本（缺少对应的中文版本）:{colorama.Style.RESET_ALL}")
         for i, file_rel_path in enumerate(sorted(only_english_files), 1):
@@ -111,8 +146,8 @@ def prepare_translation_files(chinese_dir, english_dir, output_dir):
     print(f"\n统计摘要:")
     print(f"-" * 50)
     print(f"中英文都有的文件: {len(common_files)} 个")
-    print(f"{colorama.Fore.RED}只有中文没有英文的文件: {len(only_schinese_files)} 个{colorama.Style.RESET_ALL}")
-    print(f"{colorama.Fore.RED}只有英文没有中文的文件: {len(only_english_files)} 个{colorama.Style.RESET_ALL}")
+    print(f"{colorama.Fore.RED}只有中文的文件: {len(only_schinese_files)} 个 (已复制原文件){colorama.Style.RESET_ALL}")
+    print(f"{colorama.Fore.RED}只有英文的文件: {len(only_english_files)} 个 (已复制原文件，记得翻译哈){colorama.Style.RESET_ALL}")
     print(f"总计中文文件: {len(schinese_files)} 个")
     print(f"总计英文文件: {len(english_files)} 个")
 

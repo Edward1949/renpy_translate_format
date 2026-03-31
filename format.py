@@ -29,9 +29,9 @@ def merge_translation_files(reference_file, original_file, output_file):
     with open(output_file, 'w', encoding='utf-8') as f:
         f.write(result_content)
     
-    print(f"合并完成！输出文件: {output_file}")
-    print(f"找到 {len(original_translations)} 个原文翻译项")
-    print(f"成功匹配并替换的项数: {replacement_count}")
+    print(f"{colorama.Fore.GREEN}合并完成！输出文件: {output_file}{colorama.Style.RESET_ALL}")
+    print(f"{colorama.Fore.GREEN}找到 {len(original_translations)} 个原文翻译项{colorama.Style.RESET_ALL}")
+    print(f"{colorama.Fore.GREEN}成功匹配并替换的项数: {replacement_count}{colorama.Style.RESET_ALL}")
     if missing_translations:
         print(f"{colorama.Fore.RED}未找到翻译的标识符: {missing_translations}{colorama.Style.RESET_ALL}")
 
@@ -226,11 +226,11 @@ def main():
     args = parser.parse_args()
     
     if not os.path.exists(args.reference_file):
-        print(f"错误: 参考文件 {args.reference_file} 不存在")
+        print(f"{colorama.Fore.RED}错误: 参考文件 {args.reference_file} 不存在{colorama.Style.RESET_ALL}")
         return
     
     if not os.path.exists(args.original_file):
-        print(f"错误: 原文文件 {args.original_file} 不存在")
+        print(f"{colorama.Fore.RED}错误: 原文文件 {args.original_file} 不存在{colorama.Style.RESET_ALL}")
         return
     
     merge_translation_files(args.reference_file, args.original_file, args.output_file)
