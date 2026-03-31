@@ -3,6 +3,8 @@
 
 import os
 import argparse
+import colorama
+colorama.init()
 
 def find_intermediate_files(directory):
     """
@@ -17,7 +19,7 @@ def find_intermediate_files(directory):
                 if os.path.exists(merged_file):
                     to_delete.append(os.path.join(root, file))
                 else:
-                    print(f"警告: 文件 {file} 没有对应的合并文件，将不会删除。")
+                    print(f"{colorama.Fore.RED}警告: 文件 {file} 没有对应的合并文件，将不会删除。{colorama.Style.RESET_ALL}")
     return to_delete
 
 def delete_intermediate_files(directory, confirm=True):
@@ -46,7 +48,7 @@ def delete_intermediate_files(directory, confirm=True):
         print(f"  {rel}")
 
     if confirm:
-        resp = input(f"确认删除以上 {len(to_delete)} 个文件？(y/N): ").strip().lower()
+        resp = input(f"{colorama.Fore.RED}确认删除以上 {len(to_delete)} 个文件？(y/N): {colorama.Style.RESET_ALL}").strip().lower()
         if resp != 'y':
             print("取消删除。")
             return 0

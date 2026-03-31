@@ -6,7 +6,7 @@ import sys
 import subprocess
 import argparse
 
-# 将当前目录添加到 Python 路径，以便导入同目录下的 prepare_files
+# 将当前目录添加到 Python 路径，以便导入同目录下的 prepare_files 和 del_files
 sys.path.insert(0, os.path.dirname(__file__))
 
 try:
@@ -14,6 +14,12 @@ try:
 except ImportError:
     print("警告: 无法导入 prepare_files.py，准备文件功能将不可用。")
     prepare_files = None
+
+try:
+    import del_files
+except ImportError:
+    print("警告: 无法导入 del_files.py，删除中间文件功能将不可用。")
+    del_files = None
 
 def find_file_pairs(directory):
     """
@@ -255,9 +261,10 @@ def run_interactive(directory, mode, format_script):
             print("3. (不可用，无文件对)")
         print("4. 切换执行模式")
         print("5. 重新扫描")
-        print("6. 退出")
+        print("6. 删除中间文件 (xxxC.rpy / xxxE.rpy)")
+        print("7. 退出")
 
-        choice = input("请输入选项 (0-6): ").strip()
+        choice = input("请输入选项 (0-7): ").strip()
 
         try:
             if choice == '0':
@@ -372,11 +379,23 @@ def run_interactive(directory, mode, format_script):
                 all_pairs = display_file_pairs(file_pairs)
 
             elif choice == '6':
+                # 删除中间文件
+                if del_files is None:
+                    print("错误: del_files 模块不可用，无法执行删除操作。")
+                    continue
+                # 调用 del_files 模块的函数，要求确认
+                print("\n===== 删除中间文件 =====")
+                deleted = del_files.delete_intermediate_files(directory, confirm=True)
+                # 删除后直接退出程序
+                print("程序退出。")
+                break
+
+            elif choice == '7':
                 print("再见！")
                 break
 
             else:
-                print("错误: 请输入有效的选项 (0-6)")
+                print("错误: 请输入有效的选项 (0-7)")
 
         except KeyboardInterrupt:
             print("\n\n用户中断操作")
@@ -392,10 +411,29 @@ def main():
                         help='执行模式：direct-直接调用函数，subprocess-使用子进程')
     parser.add_argument('--prepare', nargs=3, metavar=('CHINESE_DIR', 'ENGLISH_DIR', 'OUTPUT_DIR'),
                         help='直接执行准备文件操作，然后询问是否进入交互界面')
+    parser.add_argument('--delete', nargs='?', const='.', default=None, metavar='DIRECTORY',
+                        help='删除工作目录中的中间文件（xxxC.rpy 和 xxxE.rpy），可选指定目录（默认当前目录）')
+    parser.add_argument('-y', '--yes', action='store_true', help='删除时跳过确认提示')
 
     args = parser.parse_args()
 
-    # 如果提供了 --prepare，先执行准备，再决定是否进入交互
+    # 处理 --delete 参数
+    if args.delete is not None:
+        target_dir = args.delete if args.delete != '.' else args.directory  # 如果指定了目录则使用，否则使用位置参数
+        # 如果 --delete 未带参数且位置参数存在，则使用位置参数；否则使用当前目录
+        if args.delete == '.' and args.directory != '.':
+            target_dir = args.directory
+        else:
+            target_dir = args.delete
+        if del_files is None:
+            print("错误: del_files 模块不可用，无法执行删除操作。")
+            return
+        print(f"正在扫描目录: {target_dir}")
+        deleted = del_files.delete_intermediate_files(target_dir, confirm=not args.yes)
+        print(f"删除完成，共删除 {deleted} 个文件。")
+        return
+
+    # 处理 --prepare 参数
     if args.prepare:
         chinese_dir, english_dir, output_dir = args.prepare
         if not os.path.exists(chinese_dir):
@@ -430,7 +468,7 @@ def main():
                 print("无效输入，请输入 y 或 n。")
         return
 
-    # 没有 --prepare，直接进入交互
+    # 没有 --prepare 也没有 --delete，直接进入交互
     run_interactive(args.directory, args.mode, args.format_script)
 
 if __name__ == "__main__":
