@@ -5,6 +5,8 @@ import os
 import sys
 import subprocess
 import argparse
+import colorama
+colorama.init()
 
 # 将当前目录添加到 Python 路径，以便导入同目录下的 prepare_files 和 del_files
 sys.path.insert(0, os.path.dirname(__file__))
@@ -12,13 +14,13 @@ sys.path.insert(0, os.path.dirname(__file__))
 try:
     import prepare_files
 except ImportError:
-    print("警告: 无法导入 prepare_files.py，准备文件功能将不可用。")
+    print(f"{colorama.Fore.RED}警告: 无法导入 prepare_files.py，准备文件功能将不可用。{colorama.Style.RESET_ALL}")
     prepare_files = None
 
 try:
     import del_files
 except ImportError:
-    print("警告: 无法导入 del_files.py，删除中间文件功能将不可用。")
+    print(f"{colorama.Fore.RED}警告: 无法导入 del_files.py，删除中间文件功能将不可用。{colorama.Style.RESET_ALL}")
     del_files = None
 
 def find_file_pairs(directory):
@@ -68,7 +70,7 @@ def display_file_pairs(file_pairs):
     显示可用的文件对供用户选择，返回所有文件对的列表
     """
     if not file_pairs:
-        print("未找到任何可处理的文件对！")
+        print(f"{colorama.Fore.RED}未找到任何可处理的文件对！{colorama.Style.RESET_ALL}")
         return []  # 返回空列表
 
     print(f"找到 {len(file_pairs)} 个文件对：")
@@ -114,11 +116,11 @@ def format_single_pair(c_file, e_file, merge_file, format_script="format.py"):
 
     # 检查文件是否存在
     if not os.path.exists(c_file):
-        print(f"错误: 文件不存在 {c_file}")
+        print(f"{colorama.Fore.RED}错误: 文件不存在 {c_file}{colorama.Style.RESET_ALL}")
         return False
 
     if not os.path.exists(e_file):
-        print(f"错误: 文件不存在 {e_file}")
+        print(f"{colorama.Fore.RED}错误: 文件不存在 {e_file}{colorama.Style.RESET_ALL}")
         return False
 
     # 构建命令 - 确保使用正确的编码
@@ -141,17 +143,17 @@ def format_single_pair(c_file, e_file, merge_file, format_script="format.py"):
                     print(line)
 
         if result.stderr:
-            print("错误:")
+            print(f"{colorama.Fore.RED}错误:{colorama.Style.RESET_ALL}")
             print(result.stderr)
 
         if result.returncode == 0:
             print(f"✓ 处理完成: {merge_file}")
             return True
         else:
-            print(f"✗ 处理失败: 返回码 {result.returncode}")
+            print(f"{colorama.Fore.RED}✗ 处理失败: 返回码 {result.returncode}{colorama.Style.RESET_ALL}")
             return False
     except Exception as e:
-        print(f"✗ 执行出错: {e}")
+        print(f"{colorama.Fore.RED}✗ 执行出错: {e}{colorama.Style.RESET_ALL}")
         return False
 
 def format_single_pair_direct(c_file, e_file, merge_file):
@@ -162,11 +164,11 @@ def format_single_pair_direct(c_file, e_file, merge_file):
 
     # 检查文件是否存在
     if not os.path.exists(c_file):
-        print(f"错误: 文件不存在 {c_file}")
+        print(f"{colorama.Fore.RED}错误: 文件不存在 {c_file}{colorama.Style.RESET_ALL}")
         return False
 
     if not os.path.exists(e_file):
-        print(f"错误: 文件不存在 {e_file}")
+        print(f"{colorama.Fore.RED}错误: 文件不存在 {e_file}{colorama.Style.RESET_ALL}")
         return False
 
     try:
@@ -180,18 +182,18 @@ def format_single_pair_direct(c_file, e_file, merge_file):
         print(f"✓ 处理完成: {merge_file}")
         return True
     except ImportError as e:
-        print(f"✗ 无法导入format.py: {e}")
+        print(f"{colorama.Fore.RED}✗ 无法导入format.py: {e}{colorama.Style.RESET_ALL}")
         print("尝试使用subprocess方式...")
         # 回退到subprocess方式
         return format_single_pair(c_file, e_file, merge_file, "format.py")
     except Exception as e:
-        print(f"✗ 执行出错: {e}")
+        print(f"{colorama.Fore.RED}✗ 执行出错: {e}{colorama.Style.RESET_ALL}")
         return False
 
 def perform_prepare():
     """交互式执行准备文件操作"""
     if prepare_files is None:
-        print("错误: prepare_files 模块不可用，无法执行准备操作。")
+        print(f"{colorama.Fore.RED}错误: prepare_files 模块不可用，无法执行准备操作。{colorama.Style.RESET_ALL}")
         return
 
     print("\n===== 准备文件 =====")
@@ -213,10 +215,10 @@ def perform_prepare():
 
     # 检查目录是否存在
     if not os.path.exists(chinese_dir):
-        print(f"错误: 中文目录 {chinese_dir} 不存在")
+        print(f"{colorama.Fore.RED}错误: 中文目录 {chinese_dir} 不存在{colorama.Style.RESET_ALL}")
         return
     if not os.path.exists(english_dir):
-        print(f"错误: 英文目录 {english_dir} 不存在")
+        print(f"{colorama.Fore.RED}错误: 英文目录 {english_dir} 不存在{colorama.Style.RESET_ALL}")
         return
 
     try:
@@ -224,17 +226,17 @@ def perform_prepare():
         print(f"\n准备完成！文件已输出到: {output_dir}")
         return output_dir
     except Exception as e:
-        print(f"准备过程中出错: {e}")
+        print(f"{colorama.Fore.RED}准备过程中出错: {e}{colorama.Style.RESET_ALL}")
         return
 
 def run_interactive(directory, mode, format_script):
     """交互式处理主循环"""
     if not os.path.exists(directory):
-        print(f"错误: 目录 {directory} 不存在")
+        print(f"{colorama.Fore.RED}错误: 目录 {directory} 不存在{colorama.Style.RESET_ALL}")
         return
 
     if mode == 'subprocess' and not os.path.exists(format_script):
-        print(f"错误: format.py脚本 {format_script} 不存在")
+        print(f"{colorama.Fore.RED}错误: format.py脚本 {format_script} 不存在{colorama.Style.RESET_ALL}")
         return
 
     print(f"正在扫描目录: {directory}")
@@ -248,6 +250,7 @@ def run_interactive(directory, mode, format_script):
         else:
             print("\n当前没有文件对。请先使用选项0准备文件，然后选项5重新扫描。")
 
+        print(f"当前工作目录: {directory}")
         print(f"当前模式: {mode}")
         print("请选择操作:")
         print("0. 准备文件（运行 prepare_files.py）")
@@ -260,7 +263,7 @@ def run_interactive(directory, mode, format_script):
             print("2. (不可用，无文件对)")
             print("3. (不可用，无文件对)")
         print("4. 切换执行模式")
-        print("5. 重新扫描")
+        print("5. 重新扫描/切换工作目录")
         print("6. 删除中间文件 (xxxC.rpy / xxxE.rpy)")
         print("7. 退出")
 
@@ -355,7 +358,7 @@ def run_interactive(directory, mode, format_script):
                         else:
                             print(f"错误: 目录编号必须在 1-{len(directories)} 之间")
                 except ValueError:
-                    print("错误: 请输入有效的数字")
+                    print(f"{colorama.Fore.RED}错误: 请输入有效的数字{colorama.Style.RESET_ALL}")
 
             elif choice == '4':
                 # 切换执行模式
@@ -373,22 +376,40 @@ def run_interactive(directory, mode, format_script):
                     print("无效选择，保持当前模式")
 
             elif choice == '5':
+                # 重新扫描，并询问是否更改工作目录
+                print("\n是否更改工作目录？当前目录: " + directory)
+                change_dir = input("更改工作目录？(y/n): ").strip().lower()
+                if change_dir == 'y':
+                    new_dir = input("请输入新的工作目录路径: ").strip()
+                    if os.path.exists(new_dir):
+                        directory = new_dir
+                        print(f"工作目录已切换到: {directory}")
+                    else:
+                        print(f"{colorama.Fore.RED}错误: 目录 {new_dir} 不存在，保持原目录。{colorama.Style.RESET_ALL}")
                 # 重新扫描
                 print("重新扫描目录...")
                 file_pairs = find_file_pairs(directory)
                 all_pairs = display_file_pairs(file_pairs)
+                continue
 
             elif choice == '6':
                 # 删除中间文件
                 if del_files is None:
-                    print("错误: del_files 模块不可用，无法执行删除操作。")
+                    print(f"{colorama.Fore.RED}错误: del_files 模块不可用，无法执行删除操作。{colorama.Style.RESET_ALL}")
                     continue
-                # 调用 del_files 模块的函数，要求确认
                 print("\n===== 删除中间文件 =====")
                 deleted = del_files.delete_intermediate_files(directory, confirm=True)
-                # 删除后直接退出程序
-                print("程序退出。")
-                break
+                # 询问是否退出
+                while True:
+                    exit_choice = input("是否退出程序？(y/n, 默认y): ").strip().lower()
+                    if exit_choice in ('y', 'yes', ''):
+                        print("再见！")
+                        return  # 退出函数，回到主程序结束
+                    elif exit_choice in ('n', 'no'):
+                        print("返回主菜单。")
+                        break
+                    else:
+                        print("无效输入，请输入 y 或 n。")
 
             elif choice == '7':
                 print("再见！")
@@ -401,7 +422,7 @@ def run_interactive(directory, mode, format_script):
             print("\n\n用户中断操作")
             break
         except Exception as e:
-            print(f"发生错误: {e}")
+            print(f"{colorama.Fore.RED}发生错误: {e}{colorama.Style.RESET_ALL}")
 
 def main():
     parser = argparse.ArgumentParser(description='交互式选择并合并翻译文件')
@@ -426,24 +447,25 @@ def main():
         else:
             target_dir = args.delete
         if del_files is None:
-            print("错误: del_files 模块不可用，无法执行删除操作。")
+            print(f"{colorama.Fore.RED}错误: del_files 模块不可用，无法执行删除操作。{colorama.Style.RESET_ALL}")
             return
         print(f"正在扫描目录: {target_dir}")
         deleted = del_files.delete_intermediate_files(target_dir, confirm=not args.yes)
         print(f"删除完成，共删除 {deleted} 个文件。")
+        input("按任意键退出...")
         return
 
     # 处理 --prepare 参数
     if args.prepare:
         chinese_dir, english_dir, output_dir = args.prepare
         if not os.path.exists(chinese_dir):
-            print(f"错误: 中文目录 {chinese_dir} 不存在")
+            print(f"{colorama.Fore.RED}错误: 中文目录 {chinese_dir} 不存在{colorama.Style.RESET_ALL}")
             return
         if not os.path.exists(english_dir):
-            print(f"错误: 英文目录 {english_dir} 不存在")
+            print(f"{colorama.Fore.RED}错误: 英文目录 {english_dir} 不存在{colorama.Style.RESET_ALL}")
             return
         if prepare_files is None:
-            print("错误: prepare_files 模块不可用，无法执行准备操作。")
+            print(f"{colorama.Fore.RED}错误: prepare_files 模块不可用，无法执行准备操作。{colorama.Style.RESET_ALL}")
             return
 
         print("正在准备文件...")
@@ -451,7 +473,7 @@ def main():
             prepare_files.prepare_translation_files(chinese_dir, english_dir, output_dir)
             print(f"准备完成！文件已输出到: {output_dir}")
         except Exception as e:
-            print(f"准备过程中出错: {e}")
+            print(f"{colorama.Fore.RED}准备过程中出错: {e}{colorama.Style.RESET_ALL}")
             return
 
         # 询问是否进入交互界面
