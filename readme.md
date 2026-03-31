@@ -2,7 +2,7 @@
 
 ## 📋 概述
 
-本工具集用于自动化处理 RenPy 游戏翻译文件，通过唯一标识符精确匹配中文翻译内容，并将其合并到 SDK 生成的英文参考文件中。支持批量处理和交互式操作。现已集成文件准备功能，只需一个脚本即可完成从准备到合并的全流程。
+本工具集用于自动化处理 RenPy 游戏翻译文件，通过唯一标识符精确匹配中文翻译内容，并将其合并到 SDK 生成的英文参考文件中。支持批量处理和交互式操作。现已集成文件准备和中间文件清理功能，只需一个脚本即可完成从准备到合并再到清理的全流程。
 
 ## 📁 项目结构
 
@@ -10,8 +10,9 @@
 renpy-translation-project/
 ├── format.py              # 核心合并脚本
 ├── prepare_files.py       # 脚本1：准备文件（可选，已被 interactive 集成）
-├── interactive_format.py  # 脚本2：交互式处理（集成 prepare 功能）
-├── chinese/              # 原始中文翻译目录
+├── del_files.py           # 脚本2：删除中间文件（可选，已被 interactive 集成）
+├── interactive_format.py  # 脚本3：交互式处理（集成 prepare 和 delete 功能）
+├── chinese/               # 原始中文翻译目录
 │   ├── scripts/
 │   └── scripts1/
 ├── english/               # SDK生成的英文目录
@@ -28,7 +29,7 @@ renpy-translation-project/
 - Python 3.6 或更高版本
 - 无需额外依赖
 
-### 2. 准备文件（两种方式）
+### 2. 准备文件（三种方式）
 
 **方式一：使用 interactive_format.py 的命令行参数（推荐）**
 ```bash
@@ -58,6 +59,33 @@ python interactive_format.py format --mode subprocess
 
 # 指定目录和模式
 python interactive_format.py E:\game\翻译工具\renpy_format\format --mode direct
+```
+
+### 4. 清理中间文件（可选）
+
+**方式一：使用命令行参数直接删除**
+```bash
+# 删除当前目录的中间文件（需确认）
+python interactive_format.py --delete
+
+# 删除指定目录的中间文件（需确认）
+python interactive_format.py format --delete
+
+# 跳过确认，直接删除
+python interactive_format.py format --delete --yes
+```
+
+**方式二：在交互式界面中删除**
+```bash
+# 启动交互式界面
+python interactive_format.py format
+# 然后在菜单中选择选项 6 进行删除（会显示文件列表并请求确认）
+```
+
+**方式三：单独运行 del_files.py（兼容旧版）**
+```bash
+python del_files.py format           # 需确认
+python del_files.py format --yes     # 跳过确认
 ```
 
 ## 🛠️ 脚本说明
@@ -96,8 +124,24 @@ python format.py <参考文件> <原文文件> <输出文件>
   已创建: common.rpy
 ```
 
-### interactive_format.py（交互式处理脚本，集成 prepare）
-**功能**：提供交互式界面，选择并合并翻译文件。同时集成了文件准备功能，可通过菜单或命令行参数调用。
+### del_files.py（删除中间文件脚本，可选）
+**功能**：删除工作目录中的中间文件（`xxxC.rpy` 和 `xxxE.rpy`），前提是存在对应的合并文件 `xxx.rpy`。
+
+**使用方式**：
+```bash
+python del_files.py [目录] [-y]
+```
+
+**参数说明**：
+- `目录`：要扫描的目录（默认当前目录）
+- `-y, --yes`：跳过确认提示
+
+**安全机制**：
+- 仅删除那些有对应 `xxx.rpy` 文件的中间文件
+- 删除前会列出所有待删除文件并请求确认（除非使用 `-y`）
+
+### interactive_format.py（交互式处理脚本，集成 prepare 和 delete）
+**功能**：提供交互式界面，选择并合并翻译文件。同时集成了文件准备和中间文件清理功能，可通过菜单或命令行参数调用。
 
 **界面选项**：
 ```
@@ -108,14 +152,17 @@ python format.py <参考文件> <原文文件> <输出文件>
 3. 按目录批量处理
 4. 切换执行模式
 5. 重新扫描
-6. 退出
+6. 删除中间文件 (xxxC.rpy / xxxE.rpy)
+7. 退出
 ```
 
 **命令行参数**：
 - `directory`：要扫描的目录路径（默认当前目录）
 - `--format-script`：指定 format.py 脚本路径（默认当前目录）
 - `--mode`：执行模式，可选 `direct`（直接调用函数）或 `subprocess`（子进程），默认 `direct`
-- `--prepare CHINESE_DIR ENGLISH_DIR OUTPUT_DIR`：直接执行文件准备操作，完成后退出
+- `--prepare CHINESE_DIR ENGLISH_DIR OUTPUT_DIR`：直接执行文件准备操作，完成后可选择是否进入交互界面
+- `--delete [DIRECTORY]`：直接执行删除中间文件操作，完成后退出。若未指定目录，则使用位置参数 `directory` 或当前目录
+- `-y, --yes`：与 `--delete` 配合使用，跳过确认提示
 
 **执行模式**：
 - `direct` 模式：直接调用 format.py 函数（推荐）
@@ -159,6 +206,7 @@ translate chinese gym_lesson1outro_59225ee3:
 3. **临时功能**：`"..."` 和 `"…"` 的处理为临时支持，可根据需要删除相关代码
 4. **备份建议**：处理前建议备份原始文件
 5. **标识符匹配**：确保中英文文件的 translate 标识符完全一致
+6. **删除安全**：`del_files.py` 仅删除那些已有对应合并文件的中间文件，不会误删未完成合并的文件
 
 ## 🔍 常见问题
 
@@ -182,15 +230,21 @@ A: 尝试以下方法：
 2. 使用 `direct` 模式避免 subprocess 编码问题
 3. 检查系统默认编码设置
 
-### Q5: 如何一次完成准备和合并？
-A: 使用 `--prepare` 参数准备文件后，再启动交互式界面处理：
+### Q5: 如何一次完成准备、合并和清理？
+A: 使用组合命令或交互界面：
 ```bash
-# 准备文件
+# 方案一：命令行三步走
 python interactive_format.py --prepare ./chinese ./english ./format
-# 进入工作目录并启动交互式界面
 python interactive_format.py format
+python interactive_format.py format --delete --yes
+
+# 方案二：交互式界面
+python interactive_format.py format
+# 在菜单中依次选择 0（准备）、5（重新扫描）、2（批量处理）、6（删除中间文件）
 ```
-或者直接启动交互式界面后选择选项 0 进行准备，然后继续处理。
+
+### Q6: 删除中间文件有什么风险？
+A: 删除脚本会先检查是否存在对应的合并文件 `xxx.rpy`，若不存在则跳过不删除。因此不会误删未完成合并的中间文件。建议在确认所有合并文件都已生成且内容正确后再执行删除。
 
 ## 📝 使用示例
 
@@ -203,7 +257,8 @@ python interactive_format.py --prepare ./chinese ./english ./format
 python interactive_format.py ./format
 
 # 3. 在界面中选择批量处理所有文件
-# 4. 查看合并结果
+# 4. 处理完成后，退出交互界面，执行清理
+python interactive_format.py ./format --delete --yes
 ```
 
 ### 完全交互式流程
@@ -215,6 +270,17 @@ python interactive_format.py ./format
 # - 选择 0，输入中文、英文、输出目录（例如：./chinese ./english ./format）
 # - 准备完成后选择 5 重新扫描
 # - 选择 2 批量处理所有文件
+# - 处理完成后选择 6 删除中间文件（确认后删除）
+# - 选择 7 退出
+```
+
+### 仅删除中间文件
+```bash
+# 直接删除，需要确认
+python interactive_format.py format --delete
+
+# 跳过确认，直接删除
+python interactive_format.py format --delete --yes
 ```
 
 ### 单文件处理
@@ -226,4 +292,3 @@ python format.py ./format/scripts/commonE.rpy ./format/scripts/commonC.rpy ./for
 ---
 
 **提示**：首次使用建议先处理少量文件测试，确认无误后再进行批量处理。
-```
