@@ -63,7 +63,7 @@ def generate_strings_block(translations, indent=''):
     根据翻译字典生成字符串块内容。
     """
     lines = []
-    # 可选：添加注释说明
+    # 添加注释说明
     lines.append(f'{indent}# 以下为合并的字符串翻译（自动生成）')
     for old_str, new_str in sorted(translations.items()):
         lines.append(f'{indent}old "{old_str}"')
@@ -197,11 +197,14 @@ def process_strings_translations(reference_file, original_file, output_file):
         
         # 如果有额外条目，添加到块末尾
         if extra_olds:
+            # 添加空行和注释，提高可读性
             extra_block = []
+            extra_block.append('')  # 空行分隔
+            extra_block.append('    # 已追加的翻译条目（中文独有）')
             for old_str in sorted(extra_olds):
                 extra_block.append(f'    old "{old_str}"')
                 extra_block.append(f'    new "{translations[old_str]}"')
-                extra_block.append('')
+                extra_block.append('')  # 空行分隔
             extra_block_content = '\n'.join(extra_block)
             new_block_content = new_block_content.rstrip('\n') + '\n' + extra_block_content
         
