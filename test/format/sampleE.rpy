@@ -20,11 +20,11 @@ translate english strings:
 
     # 注释：这是一个字符串翻译块示例
     old "I hope I sleep well."
-    new "希望我能睡个好觉。"
+    new ""
 
     old "Click to continue."
-    new "点击继续。"
+    new ""
 
     # 另一条注释
     old "Self-voicing disabled."
-    new "自发声已禁用。"
+    new ""
