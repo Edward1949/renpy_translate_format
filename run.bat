@@ -1,45 +1,60 @@
 @echo off
-chcp 65001 > nul
-echo 正在启动交互式翻译处理工具...
-echo 若需帮助，请使用 --help 参数查看可用选项。
+chcp 65001 >nul 2>&1
+
+echo ====================================
+echo   RenPy 翻译工具集 - 一键启动脚本
+echo ====================================
 echo.
 
-:: 检查 Python 是否可用
-python --version > nul 2>&1
+REM 检查 Python 是否安装
+python --version >nul 2>&1
 if errorlevel 1 (
-    echo 错误：未找到 Python 命令，请确保 Python 已安装并加入 PATH。
+    echo [错误] 未检测到 Python！
+    echo.
+    echo 请先安装 Python 3.11 或更高版本。
+    echo 下载地址：https://www.python.org/downloads/
+    echo.
+    echo 安装时请务必勾选 "Add Python to PATH" 选项。
+    echo.
     pause
     exit /b 1
 )
 
-:: 设置目录，如果用户提供了参数则使用，否则使用默认值
-if "%1"=="" (
-    set "schinese=.\schinese"
-) else (
-    set "schinese=%1"
-)
-if "%2"=="" (
-    set "english=.\english"
-) else (
-    set "english=%2"
-)
-if "%3"=="" (
-    set "format=.\format"
-) else (
-    set "format=%3"
-)
-
-echo 使用中文目录: %schinese%
-echo 使用英文目录: %english%
-echo 输出目录: %format%
+echo [信息] Python 已安装：
+python --version
 echo.
 
-:: 调用 interactive_format.py
-python interactive_format.py --prepare "%schinese%" "%english%" "%format%"
+REM 检查并安装依赖
+if exist requirements.txt (
+    echo [信息] 正在安装/更新依赖（colorama）...
+    pip install -r requirements.txt >nul 2>&1
+    if errorlevel 1 (
+        echo [警告] 依赖安装失败，请检查网络或手动安装。
+        echo 可执行：pip install colorama
+        echo.
+    ) else (
+        echo [信息] 依赖安装成功。
+    )
+) else (
+    echo [信息] 未找到 requirements.txt，跳过依赖安装。
+    echo 如需手动安装依赖，请运行：pip install colorama
+)
 
-:: 如果执行出错，暂停以便查看
+echo.
+echo [信息] 启动交互式界面...
+echo.
+
+REM 调用主程序，传递所有命令行参数
+python interactive_format.py %*
+
+REM 如果执行出错，暂停
 if errorlevel 1 (
     echo.
-    echo 程序执行出错，请检查上方信息。
+    echo [错误] 程序执行失败，请检查上方输出信息。
     pause
+) else (
+    echo.
+    echo [信息] 程序执行完毕。
+    echo 如果中文显示为乱码，请将控制台字体设置为支持中文的字体（如 Consolas, 微软雅黑）。
+    timeout /t 5 >nul 2>&1
 )
