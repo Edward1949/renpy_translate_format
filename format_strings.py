@@ -82,8 +82,12 @@ def process_strings_translations(reference_file, original_file, output_file):
     pattern = r'^translate\s+\w+\s+strings:\s*\n((?:(?!#).*\n?)*)'
     match = re.search(pattern, ref_content, re.MULTILINE)
     if not match:
+        # 参考文件没有字符串块，所有中文翻译都是多余的
         print(f"{colorama.Fore.YELLOW}参考文件中未找到字符串翻译块，跳过处理。{colorama.Style.RESET_ALL}")
-        return True
+        print(f"{colorama.Fore.YELLOW}中文翻译中包含但参考文件中没有字符串块，所有翻译项都将被忽略:{colorama.Style.RESET_ALL}")
+        for old_str in sorted(translations.keys()):
+            print(f"{colorama.Fore.YELLOW}  {old_str}{colorama.Style.RESET_ALL}")
+        return True  # 不修改文件
     
     # 提取参考文件中的 old 字符串集合（用于检测多余翻译）
     ref_olds = set()
@@ -183,9 +187,6 @@ def process_strings_translations(reference_file, original_file, output_file):
         print(f"{colorama.Fore.RED}参考文件中存在但中文中没有翻译的标识符:{colorama.Style.RESET_ALL}")
         for old_str in missing_translations:
             print(f"{colorama.Fore.RED}  {old_str}{colorama.Style.RESET_ALL}")
-    if extra_olds:
-        # 上面已经打印过，这里不再重复
-        pass
     
     return True
 

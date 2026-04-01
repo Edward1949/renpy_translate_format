@@ -169,7 +169,7 @@ def prepare_translation_files(chinese_dir, english_dir, output_dir):
     print(f"\n{colorama.Fore.BLUE}统计摘要:{colorama.Style.RESET_ALL}")
     print(f"{colorama.Fore.BLUE}{'-' * 50}{colorama.Style.RESET_ALL}")
     print(f"{colorama.Fore.BLUE}中英文都有的文件: {len(common_files)} 个{colorama.Style.RESET_ALL}")
-    print(f"{colorama.Fore.RED}只有中文的文件: {len(only_chinese_files)} 个 (已复制原文件){colorama.Style.RESET_ALL}")
+    print(f"{colorama.Fore.RED}只有中文的文件: {len(only_chinese_files)} 个 (已复制原文件，如不需要则删掉){colorama.Style.RESET_ALL}")
     print(f"{colorama.Fore.RED}只有英文的文件: {len(only_english_files)} 个 (已复制原文件，记得翻译哈){colorama.Style.RESET_ALL}")
     print(f"{colorama.Fore.BLUE}复制的非翻译文件: {non_translation_copied} 个{colorama.Style.RESET_ALL}")
     print(f"{colorama.Fore.BLUE}总计中文文件: {len(chinese_files)} 个{colorama.Style.RESET_ALL}")
