@@ -23,6 +23,12 @@ except ImportError:
     print(f"{colorama.Fore.RED}警告: 无法导入 del_files.py，删除中间文件功能将不可用。{colorama.Style.RESET_ALL}")
     del_files = None
 
+try:
+    import format_strings
+except ImportError:
+    print(f"{colorama.Fore.YELLOW}警告: 无法导入 format_strings.py，字符串翻译处理功能将不可用。{colorama.Style.RESET_ALL}")
+    format_strings = None
+
 def find_file_pairs(directory):
     """
     在指定目录中查找所有的文件对 (xxxC.rpy 和 xxxE.rpy)
@@ -148,6 +154,18 @@ def format_single_pair(c_file, e_file, merge_file, format_script="format.py"):
 
         if result.returncode == 0:
             print(f"{colorama.Fore.GREEN}✓ 处理完成: {merge_file}{colorama.Style.RESET_ALL}")
+
+            #调用 format_strings.py
+            print(f"{colorama.Fore.BLUE}处理字符串翻译块...{colorama.Style.RESET_ALL}")
+            strings_script = os.path.join(os.path.dirname(__file__), "format_strings.py")
+            strings_command = ["python", strings_script, e_file, c_file, merge_file]
+            strings_result = subprocess.run(strings_command, capture_output=True, text=True, encoding=sys.getdefaultencoding(), errors='replace')
+            if strings_result.stdout:
+                print(strings_result.stdout)
+            if strings_result.stderr:
+                print(f"{colorama.Fore.RED}字符串翻译处理错误:{colorama.Style.RESET_ALL}")
+                print(strings_result.stderr)
+
             return True
         else:
             print(f"{colorama.Fore.RED}✗ 处理失败: 返回码 {result.returncode}{colorama.Style.RESET_ALL}")
@@ -180,6 +198,14 @@ def format_single_pair_direct(c_file, e_file, merge_file):
         merge_translation_files(e_file, c_file, merge_file)
 
         print(f"{colorama.Fore.GREEN}✓ 处理完成: {merge_file}{colorama.Style.RESET_ALL}")
+
+        #处理字符串翻译块
+        if format_strings is not None:
+            print(f"{colorama.Fore.BLUE}处理字符串翻译块...{colorama.Style.RESET_ALL}")
+            format_strings.process_strings_translations(e_file, c_file, merge_file)
+        else:
+            print(f"{colorama.Fore.YELLOW}跳过字符串翻译处理（模块不可用）。{colorama.Style.RESET_ALL}")
+
         return True
     except ImportError as e:
         print(f"{colorama.Fore.RED}✗ 无法导入format.py: {e}{colorama.Style.RESET_ALL}")
