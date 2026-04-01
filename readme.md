@@ -1,5 +1,11 @@
 # RenPy 翻译工具集
 
+---
+
+**提示**：首次使用先用 `test/` 目录中的示例文件进行测试，确认无误后再处理真实项目。
+
+---
+
 ## 📋 概述
 
 本工具集用于自动化处理 RenPy 游戏翻译文件，通过唯一标识符精确匹配中文翻译内容，并将其合并到 SDK 生成的英文参考文件中。支持批量处理和交互式操作。现已集成文件准备、中间文件清理以及字符串翻译块处理功能，只需一个脚本即可完成从准备到合并再到清理的全流程。  
@@ -251,7 +257,3 @@ python interactive_format.py format --delete --yes
 ```bash
 python format_strings.py ./format/scripts/commonE.rpy ./format/scripts/commonC.rpy ./format/scripts/common.rpy
 ```
-
----
-
-**提示**：首次使用建议先用 `test/` 目录中的示例文件进行测试，确认无误后再处理真实项目。
