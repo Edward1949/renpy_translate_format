@@ -17,7 +17,7 @@ translate chinese sample_end_9i0j1k2l:
     Obi Wan "结束。" with vpunch
 
 # game/scripts/sample.rpy:13
-translate chinese sample_strings_block:
+translate chinese strings:
 
     # 注释：这是一个字符串翻译块示例
     old "I hope I sleep well."

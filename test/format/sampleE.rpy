@@ -18,25 +18,13 @@ translate english sample_end_9i0j1k2l:
 
 translate english strings:
 
-    # renpy/common/00accessibility.rpy:28
-    old "Self-voicing disabled."
-    new ""
-
-    # renpy/common/00accessibility.rpy:29
-    old "Clipboard voicing enabled. "
-    new ""
-
-    # renpy/common/00accessibility.rpy:30
-    old "Self-voicing enabled. "
-    new ""
-
-    # renpy/common/00accessibility.rpy:31
-    old "Clipboard voicing disabled. "
-    new ""
-
-    # 以下条目在英文中缺失，用于测试追加功能
+    # 注释：这是一个字符串翻译块示例
     old "I hope I sleep well."
-    new ""
+    new "希望我能睡个好觉。"
 
     old "Click to continue."
-    new ""
+    new "点击继续。"
+
+    # 另一条注释
+    old "Self-voicing disabled."
+    new "自发声已禁用。"
