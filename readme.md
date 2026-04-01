@@ -10,11 +10,11 @@ PS:本项目代码全部由AI生成
 
 ```bash
 renpy_translate_format/
-├── format.py              # 核心合并脚本（普通翻译）
+├── format.py              # 核心合并脚本
 ├── format_strings.py      # 字符串翻译合并脚本
-├── prepare_files.py       # 准备文件（可选，已被 interactive 集成）
-├── del_files.py           # 删除中间文件（可选，已被 interactive 集成）
-├── interactive_format.py  # 交互式处理主脚本（集成全部功能）
+├── prepare_files.py       # 准备文件
+├── del_files.py           # 删除中间文件
+├── interactive_format.py  # 交互式处理主脚本
 ├── run.bat                # Windows 一键启动脚本
 ├── requirements.txt       # Python 依赖列表
 ├── test/                  # 测试样例目录
@@ -38,9 +38,8 @@ renpy_translate_format/
 
 ### 2. 下载本工具
 - 直接下载 ZIP 包并解压，或使用 Git 克隆：  
-记得改链接
   ```bash
-  git clone https://github.com/yourname/renpy_translate_format.git
+  git clone https://github.com/Edward1949/renpy_translate_format.git
   cd renpy_translate_format
   ```
 
