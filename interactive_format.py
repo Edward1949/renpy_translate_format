@@ -158,7 +158,7 @@ def format_single_pair(c_file, e_file, merge_file, format_script="format.py"):
             #调用 format_strings.py
             print(f"{colorama.Fore.BLUE}处理字符串翻译块...{colorama.Style.RESET_ALL}")
             strings_script = os.path.join(os.path.dirname(__file__), "format_strings.py")
-            strings_command = ["python", strings_script, e_file, c_file, merge_file]
+            strings_command = ["python", strings_script, merge_file, c_file, merge_file]
             strings_result = subprocess.run(strings_command, capture_output=True, text=True, encoding=sys.getdefaultencoding(), errors='replace')
             if strings_result.stdout:
                 print(strings_result.stdout)
@@ -202,7 +202,7 @@ def format_single_pair_direct(c_file, e_file, merge_file):
         #处理字符串翻译块
         if format_strings is not None:
             print(f"{colorama.Fore.BLUE}处理字符串翻译块...{colorama.Style.RESET_ALL}")
-            format_strings.process_strings_translations(e_file, c_file, merge_file)
+            format_strings.process_strings_translations(merge_file, c_file, merge_file)
         else:
             print(f"{colorama.Fore.YELLOW}跳过字符串翻译处理（模块不可用）。{colorama.Style.RESET_ALL}")
 

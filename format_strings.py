@@ -85,29 +85,34 @@ def process_strings_translations(reference_file, original_file, output_file):
     except Exception as e:
         print(f"{colorama.Fore.RED}读取文件失败: {e}{colorama.Style.RESET_ALL}")
         return False
-    
+
     # 提取中文翻译映射
     translations = extract_strings_translations(orig_content)
     if not translations:
         print(f"{colorama.Fore.YELLOW}原文文件中未找到字符串翻译块，跳过处理。{colorama.Style.RESET_ALL}")
-        return True  # 不是错误，只是没有内容
-    
+        return True
+
     # 在参考文件中定位字符串翻译块
     pattern = r'^translate\s+\w+\s+strings:\s*\n((?:(?!#).*\n?)*)'
     match = re.search(pattern, ref_content, re.MULTILINE)
-    
+
     if not match:
         # 参考文件没有字符串块：直接添加新的字符串块
         print(f"{colorama.Fore.YELLOW}参考文件中未找到字符串翻译块，将添加新的字符串块。{colorama.Style.RESET_ALL}")
-        # 确定语言标识（从原文块中提取，例如 translate chinese strings: 中的 chinese）
+        # 确定语言标识
         lang_match = re.search(r'^translate\s+(\w+)\s+strings:', orig_content, re.MULTILINE)
         lang = lang_match.group(1) if lang_match else 'chinese'
         new_block = f'translate {lang} strings:\n' + generate_strings_block(translations, indent='    ')
-        # 将新块追加到文件末尾（确保换行）
         result_content = ref_content.rstrip('\n') + '\n\n' + new_block + '\n'
-        print(f"{colorama.Fore.GREEN}已添加 {len(translations)} 个字符串翻译项。{colorama.Style.RESET_ALL}")
+        
+        # 输出添加的标识符（黄色）
+        print(f"{colorama.Fore.YELLOW}添加的字符串翻译标识符:{colorama.Style.RESET_ALL}")
+        for old_str in sorted(translations.keys()):
+            print(f"{colorama.Fore.YELLOW}  {old_str}{colorama.Style.RESET_ALL}")
+        
         replacement_count = 0
         missing_translations = []
+        extra_olds = set()  # 无额外条目
     else:
         # 参考文件有字符串块：处理替换和追加
         ref_olds = set()
