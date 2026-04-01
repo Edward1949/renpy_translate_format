@@ -15,7 +15,6 @@ def extract_strings_translations(original_content):
     translations = {}
     
     # 找到 translate ... strings: 块
-    # 块以 translate 开头，strings: 结尾，持续到文件结束或下一个 translate 块
     pattern = r'^translate\s+\w+\s+strings:\s*\n((?:(?!#).*\n?)*)'
     match = re.search(pattern, original_content, re.MULTILINE)
     if not match:
@@ -40,17 +39,18 @@ def extract_strings_translations(original_content):
             # 查找对应的 new 行（跳过空行和注释）
             j = i + 1
             while j < len(lines):
-                next_line = lines[j].strip()
-                if next_line == '' or next_line.startswith('#'):
+                next_line = lines[j]
+                next_stripped = next_line.strip()
+                if next_stripped == '' or next_stripped.startswith('#'):
                     j += 1
                     continue
-                new_match = re.match(r'^new\s+"((?:[^"\\]|\\.)*)"', next_line)
+                new_match = re.match(r'^new\s+"((?:[^"\\]|\\.)*)"', next_stripped)
                 if new_match:
                     new_str = new_match.group(1)
                     translations[old_str] = new_str
                     break
                 else:
-                    # 不是 new 行，则可能格式错误，退出循环
+                    # 不是 new 行，可能格式错误，退出循环
                     break
             i = j + 1
         else:
@@ -72,7 +72,7 @@ def process_strings_translations(reference_file, original_file, output_file):
         print(f"{colorama.Fore.RED}读取文件失败: {e}{colorama.Style.RESET_ALL}")
         return False
     
-    # 提取原文翻译映射
+    # 提取中文翻译映射
     translations = extract_strings_translations(orig_content)
     if not translations:
         print(f"{colorama.Fore.YELLOW}原文文件中未找到字符串翻译块，跳过处理。{colorama.Style.RESET_ALL}")
@@ -84,6 +84,23 @@ def process_strings_translations(reference_file, original_file, output_file):
     if not match:
         print(f"{colorama.Fore.YELLOW}参考文件中未找到字符串翻译块，跳过处理。{colorama.Style.RESET_ALL}")
         return True
+    
+    # 提取参考文件中的 old 字符串集合（用于检测多余翻译）
+    ref_olds = set()
+    ref_block = match.group(1)
+    for line in ref_block.splitlines():
+        stripped = line.strip()
+        if stripped.startswith('old '):
+            old_match = re.match(r'^old\s+"((?:[^"\\]|\\.)*)"', stripped)
+            if old_match:
+                ref_olds.add(old_match.group(1))
+    
+    # 找出中文翻译中多余的 old（不在参考文件中）
+    extra_olds = set(translations.keys()) - ref_olds
+    if extra_olds:
+        print(f"{colorama.Fore.YELLOW}中文翻译中包含但参考文件中不存在的字符串标识符:{colorama.Style.RESET_ALL}")
+        for old_str in sorted(extra_olds):
+            print(f"{colorama.Fore.YELLOW}  {old_str}{colorama.Style.RESET_ALL}")
     
     block_start = match.start()
     block_end = match.end()
@@ -163,7 +180,12 @@ def process_strings_translations(reference_file, original_file, output_file):
     print(f"{colorama.Fore.GREEN}找到 {len(translations)} 个原文翻译项{colorama.Style.RESET_ALL}")
     print(f"{colorama.Fore.GREEN}成功匹配并替换的项数: {replacement_count}{colorama.Style.RESET_ALL}")
     if missing_translations:
-        print(f"{colorama.Fore.RED}未找到翻译的标识符: {missing_translations}{colorama.Style.RESET_ALL}")
+        print(f"{colorama.Fore.RED}参考文件中存在但中文中没有翻译的标识符:{colorama.Style.RESET_ALL}")
+        for old_str in missing_translations:
+            print(f"{colorama.Fore.RED}  {old_str}{colorama.Style.RESET_ALL}")
+    if extra_olds:
+        # 上面已经打印过，这里不再重复
+        pass
     
     return True
 
