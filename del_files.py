@@ -19,7 +19,8 @@ def find_intermediate_files(directory):
                 if os.path.exists(merged_file):
                     to_delete.append(os.path.join(root, file))
                 else:
-                    print(f"{colorama.Fore.RED}警告: 文件 {file} 没有对应的合并文件，将不会删除。{colorama.Style.RESET_ALL}")
+                    rel_file = os.path.relpath(os.path.join(root, file), directory) if directory != '.' else file
+                    print(f"{colorama.Fore.YELLOW}警告: 文件 {rel_file} 没有对应的合并文件，将不会删除。{colorama.Style.RESET_ALL}")
     return to_delete
 
 def delete_intermediate_files(directory, confirm=True):
@@ -39,29 +40,31 @@ def delete_intermediate_files(directory, confirm=True):
 
     to_delete = find_intermediate_files(directory)
     if not to_delete:
-        print("没有找到要删除的中间文件（C.rpy 或 E.rpy）。")
+        print(f"{colorama.Fore.BLUE}没有找到要删除的中间文件（C.rpy 或 E.rpy）。{colorama.Style.RESET_ALL}")
         return 0
 
-    print(f"找到 {len(to_delete)} 个中间文件:")
+    print(f"{colorama.Fore.BLUE}找到 {len(to_delete)} 个中间文件:{colorama.Style.RESET_ALL}")
     for f in to_delete:
         rel = os.path.relpath(f, directory) if directory != '.' else f
-        print(f"  {rel}")
+        print(f"  {colorama.Fore.CYAN}{rel}{colorama.Style.RESET_ALL}")
 
     if confirm:
         resp = input(f"{colorama.Fore.RED}确认删除以上 {len(to_delete)} 个文件？(y/N): {colorama.Style.RESET_ALL}").strip().lower()
         if resp != 'y':
-            print("取消删除。")
+            print(f"{colorama.Fore.BLUE}取消删除。{colorama.Style.RESET_ALL}")
             return 0
 
     deleted = 0
     for f in to_delete:
         try:
             os.remove(f)
-            print(f"已删除: {f}")
+            rel = os.path.relpath(f, directory) if directory != '.' else f
+            print(f"{colorama.Fore.GREEN}已删除: {rel}{colorama.Style.RESET_ALL}")
             deleted += 1
         except Exception as e:
-            print(f"{colorama.Fore.RED}删除失败 {f}: {e}{colorama.Style.RESET_ALL}")
-    print(f"成功删除 {deleted}/{len(to_delete)} 个文件。")
+            rel = os.path.relpath(f, directory) if directory != '.' else f
+            print(f"{colorama.Fore.RED}删除失败 {rel}: {e}{colorama.Style.RESET_ALL}")
+    print(f"{colorama.Fore.GREEN}成功删除 {deleted}/{len(to_delete)} 个文件。{colorama.Style.RESET_ALL}")
     return deleted
 
 def main():

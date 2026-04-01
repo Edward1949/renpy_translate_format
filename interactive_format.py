@@ -74,7 +74,7 @@ def display_file_pairs(file_pairs):
         return []  # 返回空列表
 
     print(f"{colorama.Fore.BLUE}找到 {len(file_pairs)} 个文件对：{colorama.Style.RESET_ALL}")
-    print(f"{colorama.Fore.BLUE}={colorama.Style.RESET_ALL}" * 80)
+    print(f"{colorama.Fore.BLUE}{'=' * 80}{colorama.Style.RESET_ALL}")
 
     # 按目录分组显示
     grouped_pairs = {}
@@ -94,7 +94,7 @@ def display_file_pairs(file_pairs):
 
     for dir_name, pairs in sorted(grouped_pairs.items()):
         print(f"{colorama.Fore.CYAN}\n[{dir_name}]{colorama.Style.RESET_ALL}")
-        print(f"{colorama.Fore.BLUE}-{colorama.Style.RESET_ALL}" * 60)
+        print(f"{colorama.Fore.BLUE}{'-' * 60}{colorama.Style.RESET_ALL}")
 
         for pair in sorted(pairs, key=lambda x: x['name']):
             display_name = pair['name']
@@ -105,7 +105,7 @@ def display_file_pairs(file_pairs):
             all_pairs.append(pair)
             current_index += 1
 
-    print(f"{colorama.Fore.BLUE}={colorama.Style.RESET_ALL}" * 80)
+    print(f"{colorama.Fore.BLUE}{'=' * 80}{colorama.Style.RESET_ALL}")
     return all_pairs
 
 def format_single_pair(c_file, e_file, merge_file, format_script="format.py"):
@@ -197,7 +197,7 @@ def perform_prepare():
         return
 
     print(f"{colorama.Fore.BLUE}\n===== 准备文件 ====={colorama.Style.RESET_ALL}")
-    print(f"{colorama.Fore.BLUE}请输入以下目录路径：")
+    print(f"{colorama.Fore.BLUE}请输入以下目录路径：{colorama.Style.RESET_ALL}")
     chinese_dir = input(f"{colorama.Fore.BLUE}中文目录 (chinese): {colorama.Style.RESET_ALL}").strip()
     if not chinese_dir:
         print(f"{colorama.Fore.YELLOW}取消操作。{colorama.Style.RESET_ALL}")
