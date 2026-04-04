@@ -90,10 +90,6 @@ def display_file_pairs(file_pairs):
             grouped_pairs[dir_name] = []
         grouped_pairs[dir_name].append(pair)
 
-    # 计算文件名最大长度以便对齐
-    max_name_length = max(len(pair['name']) for pair in file_pairs) if file_pairs else 0
-    max_name_length = min(max_name_length, 40)  # 限制最大长度
-
     # 显示分组
     all_pairs = []
     current_index = 1
