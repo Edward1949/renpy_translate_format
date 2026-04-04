@@ -1,42 +1,75 @@
 # game/scripts/sample.rpy:1
-translate english sample_start_a1b2c3d4:
+translate english sample_intro_a1b2c3d4:
 
-    # "This is an English line."
+    # "A long time ago in a galaxy far, far away..."
     ""
 
 # game/scripts/sample.rpy:5
-translate english sample_mid_5e6f7g8h:
+translate english sample_obiwan_5e6f7g8h:
 
-    # Obi Wan "Hello there!"
-    Obi Wan ""
+    # Obi-Wan "Hello there!"
+    Obi-Wan ""
 
 # game/scripts/sample.rpy:9
-translate english sample_end_9i0j1k2l:
+translate english sample_grievous_9i0j1k2l:
 
-    # "The end." with vpunch
-    Obi Wan "" with vpunch
+    # General Grievous "General Kenobi!"
+    General Grievous ""
 
+# game/scripts/sample.rpy:13
+translate english sample_obiwan_counter_3m4n5o6p:
+
+    # Obi-Wan "You are a bold one."
+    Obi-Wan ""
+
+# game/scripts/sample.rpy:17
+translate english sample_anakin_7q8r9s0t:
+
+    # Anakin "I don't like sand. It's coarse and rough and irritating... and it gets everywhere."
+    Anakin ""
+
+# game/scripts/sample.rpy:21
+translate english sample_padme_1u2v3w4x:
+
+    # Padmé "You're not the Jedi I fell in love with."
+    Padmé ""
+
+# game/scripts/sample.rpy:25
+translate english sample_anakin_highground_5y6z7a8b:
+
+    # Obi-Wan "It's over, Anakin! I have the high ground!"
+    Obi-Wan ""
+
+# game/scripts/sample.rpy:29
+translate english sample_anakin_underestimate_9c0d1e2f:
+
+    # Anakin "You underestimate my power!"
+    Anakin ""
+
+# game/scripts/sample.rpy:33
+translate english sample_obiwan_friend_3g4h5i6j:
+
+    # Obi-Wan "You were my brother, Anakin! I loved you!"
+    Obi-Wan ""
+
+# game/strings/sample_strings_block:
 translate english strings:
 
-    # renpy/common/00accessibility.rpy:28
-    old "Self-voicing disabled."
+    # 经典台词（英文版留空）
+    old "I have the high ground!"
     new ""
 
-    # renpy/common/00accessibility.rpy:29
-    old "Clipboard voicing enabled. "
+    old "You were the chosen one!"
     new ""
 
-    # renpy/common/00accessibility.rpy:30
-    old "Self-voicing enabled. "
+    old "It's treason, then."
     new ""
 
-    # renpy/common/00accessibility.rpy:31
-    old "Clipboard voicing disabled. "
+    old "Hello there!"
     new ""
 
-    # 以下条目在英文中缺失，用于测试追加功能
-    old "I hope I sleep well."
+    old "General Kenobi!"
     new ""
 
-    old "Click to continue."
+    old "This is where the fun begins."
     new ""
