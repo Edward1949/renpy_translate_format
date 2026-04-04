@@ -131,7 +131,7 @@ def process_strings_translations(reference_file, original_file, output_file):
         # 找出中文翻译中多余的 old（不在参考文件中）
         extra_olds = set(translations.keys()) - ref_olds
         if extra_olds:
-            print(f"{colorama.Fore.YELLOW}中文翻译中包含但参考文件中不存在的字符串标识符:{colorama.Style.RESET_ALL}")
+            print(f"{colorama.Fore.YELLOW}原文翻译中包含但参考文件中不存在的字符串标识符:{colorama.Style.RESET_ALL}")
             for old_str in sorted(extra_olds):
                 print(f"{colorama.Fore.YELLOW}  {old_str}{colorama.Style.RESET_ALL}")
             print(f"{colorama.Fore.YELLOW}这些条目将追加到文件末尾。{colorama.Style.RESET_ALL}")
@@ -200,7 +200,7 @@ def process_strings_translations(reference_file, original_file, output_file):
             # 添加空行和注释，提高可读性
             extra_block = []
             extra_block.append('')  # 空行分隔
-            extra_block.append('    # 已追加的翻译条目（中文独有）')
+            extra_block.append('    # 已追加的翻译条目（原文独有）')
             for old_str in sorted(extra_olds):
                 extra_block.append(f'    old "{old_str}"')
                 extra_block.append(f'    new "{translations[old_str]}"')
@@ -215,7 +215,7 @@ def process_strings_translations(reference_file, original_file, output_file):
         print(f"{colorama.Fore.GREEN}找到 {len(translations)} 个原文翻译项{colorama.Style.RESET_ALL}")
         print(f"{colorama.Fore.GREEN}成功匹配并替换的项数: {replacement_count}{colorama.Style.RESET_ALL}")
         if missing_translations:
-            print(f"{colorama.Fore.RED}参考文件中存在但中文中没有翻译的标识符:{colorama.Style.RESET_ALL}")
+            print(f"{colorama.Fore.RED}参考文件中存在但原文中没有翻译的标识符:{colorama.Style.RESET_ALL}")
             for old_str in missing_translations:
                 print(f"{colorama.Fore.RED}  {old_str}{colorama.Style.RESET_ALL}")
         if extra_olds:
