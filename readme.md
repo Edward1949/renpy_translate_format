@@ -23,6 +23,7 @@ renpy_translate_format/
 ├── interactive_format.py  # 交互式处理主脚本
 ├── run.bat                # Windows 一键启动脚本
 ├── requirements.txt       # Python 依赖列表
+├── images/Optins.webp     # 图片
 ├── test/                  # 测试样例目录
 │   ├── chinese/           # 示例中文翻译
 │   │   └── scripts/
@@ -128,8 +129,18 @@ python del_files.py [目录] [-y]
 **功能**：提供交互式界面，选择并合并翻译文件。自动处理普通翻译和字符串翻译块。
 
 **界面选项**：
-![Options](https://raw.githubusercontent.com/Edward1949/renpy_translate_format/main/images/Options.webp)
 
+![Options](https://raw.githubusercontent.com/Edward1949/renpy_translate_format/main/images/Options.webp)
+```
+0. 准备文件（运行 prepare_files.py）
+1. 处理单个文件对
+2. 批量处理所有文件对
+3. 按目录批量处理
+4. 切换执行模式
+5. 重新扫描/切换工作目录
+6. 删除中间文件 (xxxC.rpy / xxxE.rpy)
+7. 退出
+```
 **命令行参数**：
 - `directory`：要扫描的目录路径（默认当前目录）
 - `--format-script`：指定 format.py 脚本路径（默认当前目录）
