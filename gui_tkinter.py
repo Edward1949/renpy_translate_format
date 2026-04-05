@@ -6,21 +6,24 @@ import sys
 import re
 import threading
 import subprocess
+import shutil
 import tkinter as tk
 from tkinter import filedialog, scrolledtext, messagebox, ttk
 
-if getattr(sys, 'frozen', False):
-    # 运行在打包后的 exe 中
-    base_path = sys._MEIPASS
-else:
-    # 运行在开发环境中
-    base_path = os.path.dirname(__file__)
-sys.path.insert(0, base_path)
+# ---------- 兼容 PyInstaller 打包 ----------
+def get_resource_path(relative_path):
+    """获取资源文件的绝对路径，兼容 PyInstaller 打包"""
+    if hasattr(sys, '_MEIPASS'):
+        # 运行在打包后的 exe 中
+        return os.path.join(sys._MEIPASS, relative_path)
+    else:
+        # 运行在开发环境中
+        return os.path.join(os.path.dirname(__file__), relative_path)
 
-# 将当前目录加入路径，以便导入其他模块
-sys.path.insert(0, os.path.dirname(__file__))
+# 将资源目录添加到 sys.path，以便导入其他模块
+sys.path.insert(0, get_resource_path('.'))
 
-# 导入现有模块的函数（direct 模式）
+# ---------- 导入现有模块 ----------
 try:
     from interactive_format import find_file_pairs
     from format import merge_translation_files
@@ -31,6 +34,22 @@ except ImportError as e:
     print(f"导入模块失败: {e}")
     sys.exit(1)
 
+# ---------- 部署测试示例 ----------
+def deploy_test_example(target_dir):
+    """将内置的 test 目录复制到 target_dir"""
+    src_test = get_resource_path('test')
+    if not os.path.exists(src_test):
+        return False, "内置测试文件不存在，请确保打包时包含了 test 目录"
+    try:
+        # 如果目标目录已存在，先删除
+        if os.path.exists(target_dir):
+            shutil.rmtree(target_dir)
+        shutil.copytree(src_test, target_dir)
+        return True, f"已部署测试示例到: {target_dir}"
+    except Exception as e:
+        return False, f"部署失败: {e}"
+
+# ---------- 彩色输出重定向 ----------
 class StdoutRedirector:
     """重定向 stdout 到 GUI 日志控件，并解析 ANSI 颜色代码，保留换行符"""
     def __init__(self, text_widget):
@@ -89,6 +108,7 @@ class StdoutRedirector:
     def flush(self):
         pass
 
+# ---------- GUI 主程序 ----------
 class RenpyTranslationGUI:
     def __init__(self, root):
         self.root = root
@@ -116,7 +136,7 @@ class RenpyTranslationGUI:
         tk.Button(top_frame, text="浏览", command=self.select_work_dir).pack(side=tk.LEFT)
         tk.Button(top_frame, text="重新扫描", command=self.refresh_file_list).pack(side=tk.LEFT, padx=5)
 
-        # 模式选择（仅保留单选框，无按钮）
+        # 模式选择
         mode_frame = tk.Frame(self.root)
         mode_frame.pack(fill=tk.X, padx=5, pady=2)
         tk.Label(mode_frame, text="执行模式:").pack(side=tk.LEFT)
@@ -144,7 +164,7 @@ class RenpyTranslationGUI:
         self.tree.configure(yscrollcommand=scrollbar.set)
         self.tree.bind("<Double-1>", self.on_double_click)
 
-        # 按钮区域（无序号，无退出按钮）
+        # 按钮区域
         btn_frame = tk.Frame(self.root)
         btn_frame.pack(fill=tk.X, padx=5, pady=5)
 
@@ -156,6 +176,7 @@ class RenpyTranslationGUI:
             ("按目录批量", self.process_by_dir),
             ("切换工作目录", self.change_work_dir),
             ("删除中间文件", self.delete_files),
+            ("部署测试示例", self.deploy_test_example),
         ]
         for text, cmd in btn_texts:
             btn = tk.Button(btn_frame, text=text, command=cmd, width=15)
@@ -168,7 +189,7 @@ class RenpyTranslationGUI:
         tk.Label(log_frame, text="运行日志:").pack(anchor=tk.W)
         self.log_text = scrolledtext.ScrolledText(log_frame, height=15, wrap=tk.WORD)
         self.log_text.pack(fill=tk.BOTH, expand=True)
-        self.log_text.config(state='disabled')  # 只读
+        self.log_text.config(state='disabled')
 
     def log(self, msg):
         """直接写入日志（无颜色）"""
@@ -336,6 +357,20 @@ class RenpyTranslationGUI:
             self.log("开始删除中间文件...")
             self.run_task(self._delete)
 
+    def deploy_test_example(self):
+        """部署测试示例文件"""
+        target_base = filedialog.askdirectory(title="选择部署目标目录（将在其中创建 test_example 文件夹）")
+        if not target_base:
+            return
+        target_dir = os.path.join(target_base, "test_example")
+        success, msg = deploy_test_example(target_dir)
+        messagebox.showinfo("部署结果", msg)
+        if success:
+            if messagebox.askyesno("切换工作目录", f"是否将工作目录切换到 {target_dir}？"):
+                self.work_dir.set(target_dir)
+                self.refresh_file_list()
+
+    # ---------- 后台任务 ----------
     def set_buttons_state(self, state):
         for btn in self.buttons:
             btn.config(state=state)
