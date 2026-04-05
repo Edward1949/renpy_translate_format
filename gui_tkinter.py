@@ -9,6 +9,14 @@ import subprocess
 import tkinter as tk
 from tkinter import filedialog, scrolledtext, messagebox, ttk
 
+if getattr(sys, 'frozen', False):
+    # 运行在打包后的 exe 中
+    base_path = sys._MEIPASS
+else:
+    # 运行在开发环境中
+    base_path = os.path.dirname(__file__)
+sys.path.insert(0, base_path)
+
 # 将当前目录加入路径，以便导入其他模块
 sys.path.insert(0, os.path.dirname(__file__))
 
