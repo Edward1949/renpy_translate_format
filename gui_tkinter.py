@@ -366,9 +366,12 @@ class RenpyTranslationGUI:
         success, msg = deploy_test_example(target_dir)
         messagebox.showinfo("部署结果", msg)
         if success:
-            if messagebox.askyesno("切换工作目录", f"是否将工作目录切换到 {target_dir}？"):
-                self.work_dir.set(target_dir)
-                self.refresh_file_list()
+            # 询问是否立即准备文件
+            if messagebox.askyesno("准备文件", f"是否立即为测试示例准备文件？\n将自动填写中文目录、英文目录和输出目录。"):
+                chinese_dir = os.path.join(target_dir, "chinese")
+                english_dir = os.path.join(target_dir, "english")
+                output_dir = os.path.join(target_dir, "format")
+                self.run_task(self._prepare, chinese_dir, english_dir, output_dir)
 
     # ---------- 后台任务 ----------
     def set_buttons_state(self, state):
