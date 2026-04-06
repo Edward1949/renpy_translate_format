@@ -311,10 +311,10 @@ class RenpyTranslationGUI:
         dlg.title("准备文件")
         dlg.geometry("450x250")
         dlg.grab_set()
-        tk.Label(dlg, text="中文目录:").grid(row=0, column=0, padx=5, pady=5, sticky='e')
+        tk.Label(dlg, text="原文目录:").grid(row=0, column=0, padx=5, pady=5, sticky='e')
         chinese_var = tk.StringVar()
         tk.Entry(dlg, textvariable=chinese_var, width=40).grid(row=0, column=1, padx=5)
-        tk.Label(dlg, text="英文目录:").grid(row=1, column=0, padx=5, pady=5, sticky='e')
+        tk.Label(dlg, text="参考目录:").grid(row=1, column=0, padx=5, pady=5, sticky='e')
         english_var = tk.StringVar()
         tk.Entry(dlg, textvariable=english_var, width=40).grid(row=1, column=1)
         tk.Label(dlg, text="输出目录:").grid(row=2, column=0, padx=5, pady=5, sticky='e')
@@ -338,10 +338,10 @@ class RenpyTranslationGUI:
                 messagebox.showerror("错误", "请填写所有目录")
                 return
             if not os.path.exists(ch):
-                messagebox.showerror("错误", f"中文目录不存在: {ch}")
+                messagebox.showerror("错误", f"原文目录不存在: {ch}")
                 return
             if not os.path.exists(en):
-                messagebox.showerror("错误", f"英文目录不存在: {en}")
+                messagebox.showerror("错误", f"参考目录不存在: {en}")
                 return
             dlg.destroy()
             self.log("开始准备文件...")

@@ -67,14 +67,6 @@ translate chinese strings:
     old "It's treason, then."
     new "那就是叛国了。"
 
-    # 欧比旺的问候 —— 四部通用打招呼模板，对面一般接“General Kenobi！”
-    old "Hello there!"
-    new "你好啊！"
-
-    # 格里弗斯的回应 —— 机械将军的条件反射，看到绝地就掏光剑
-    old "General Kenobi!"
-    new "克诺比将军！"
-
     # 安纳金的兴奋 —— 每次飞船起飞前的Flag发言，说完必定出事
     old "This is where the fun begins."
     new "这才有趣起来。"

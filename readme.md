@@ -283,18 +283,17 @@ python format_strings.py ./format/scripts/commonE.rpy ./format/scripts/commonC.r
 以下是一个典型的 RenPy 游戏翻译更新流程，从旧版汉化迁移到新版游戏，利用本工具高效完成翻译合并与补全。
 
 ### 第一步：从旧版本提取汉化文件
-- 找到旧版游戏的 `tl/chinese` 目录（或其他语言目录，如 `tl/chinese1`）。
-- 将整个 `chinese` 文件夹**复制**到本工具根目录下。
+- 找到旧版游戏的 `tl/chinese` 目录（或其他语言目录，如 `tl/schinese`）。
+- 将整个 `chinese` 文件夹填写到准备文件窗口原文目录下。
 
 ### 第二步：使用新版本游戏的 SDK 生成翻译文件
 - 打开新版本游戏，使用 RenPy SDK 的 **“生成翻译文件”** 功能（Generate Translations）。
 - **重要**：在生成界面中，**务必勾选 “为翻译生成空字符串”**（Generate empty strings for translations）。
-- 语言填写建议：**`english`**（因为本工具默认英文为参考，你也可以填 `tenglish` 等，但后续需对应替换）。
+- 语言填写建议：**`english`**（因为本工具默认英文为参考，你也可以填 `english` 等，但后续需对应替换）。
 - 生成后，你会得到一个 `tl/english` 目录（或你填写的语言名）。
-- 将该目录**整体复制**到本工具根目录下。
+- 将该目录填写到到准备文件窗口参考目录下。
 
 ### 第三步：放置目录并运行工具
-- 确保项目根目录下存在 `chinese/` 和 `english/` 两个文件夹，内部结构完全一致（例如都有 `scripts/` 子目录）。
 - 启动工具（GUI 或命令行）：
   - **GUI 用户**：双击 `RenPyTranslateGUI.exe` → 点击“准备文件” → 选择 `chinese`、`english`、`format` → 点击“重新扫描” → 点击“批量处理全部”。
   - **命令行用户**：执行 `python interactive_format.py --prepare ./chinese ./english ./format`，然后 `python interactive_format.py format` 并选择 `2`。
@@ -311,17 +310,16 @@ python format_strings.py ./format/scripts/commonE.rpy ./format/scripts/commonC.r
 ### 第五步：处理语言标识符（如果 SDK 生成的语言不是 `chinese`）
 - 如果你在第二步中填写的是 `english`，那么生成的翻译文件块是 `translate english ...:`。
 - 而你的旧版汉化文件通常是 `translate chinese ...:`。
-- **本工具会自动处理标识符匹配**（只要唯一 ID 相同），但最终合并文件中的 `translate` 语言名会跟随参考文件（即 `english`）。
+- **本工具会自动处理标识符匹配**（只要唯一 ID 相同），但最终合并文件中的 `translate` 语言名会跟随参考文件（有可能是 `english`）。
 - 如果你想将最终翻译包改为 `chinese`，可以在 VS Code 中**全局搜索替换**：
   - 搜索 `translate english`，替换为 `translate chinese`。
   - 注意：`translate english strings:` 也要替换为 `translate chinese strings:`。
-- 如果游戏只认 `chinese` 或 `chinese1`，这一步必须做。
 
 ### 第六步：清理中间文件，获得最终翻译包
 - 在工具中点击 **“删除中间文件”**（或执行 `python interactive_format.py format --delete --yes`）。
 - 此时 `format/` 文件夹中只剩下 `xxx.rpy` 文件（以及你复制的图片、字体等资源）。
 - 这个 `format/` 文件夹就是**更新后的完整汉化包**。
-- 将其**重命名**为游戏识别的语言名（例如 `tl/chinese` 或 `tl/chinese1`），然后放回游戏目录即可使用。
+- 将其**重命名**为游戏识别的语言名（例如 `tl/chinese` 或 `tl/schinese`），然后放回游戏目录即可使用。
 
 ---
 
