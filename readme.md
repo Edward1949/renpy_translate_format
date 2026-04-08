@@ -20,7 +20,7 @@ PS: 本项目代码全部由 AI 生成。
 
 ```bash
 renpy_translate_format/
-├── format.py              # 核心合并脚本（普通翻译）
+├── format.py              # 普通翻译合并脚本
 ├── format_strings.py      # 字符串翻译合并脚本
 ├── prepare_files.py       # 准备文件
 ├── del_files.py           # 删除中间文件
@@ -29,7 +29,7 @@ renpy_translate_format/
 ├── run.bat                # 命令行版一键启动脚本
 ├── run_gui.bat            # GUI 版一键启动脚本
 ├── requirements.txt       # Python 依赖列表
-├── images/                # 截图（Options.webp, GUI.webp）
+├── images/                # 截图
 ├── test/                  # 测试样例目录（源码版）
 ├── chinese/               # 你的中文翻译目录（需手动放置）
 ├── english/               # 你的 SDK 英文目录（需手动放置）
@@ -163,9 +163,9 @@ translate chinese strings:
 
 ### 第三步：运行工具合并翻译
 - **GUI 用户**：双击 exe → 点击“准备文件”，分别选择 `chinese`、`english`、`format` → 点击“重新扫描” → 点击“批量处理全部”。
-![prepare](https://raw.githubusercontent.com/Edward1949/renpy_translate_format/main/images/prepare_log.webp)
 - **命令行用户**：执行 `python interactive_format.py --prepare ./chinese ./english ./format`，然后 `python interactive_format.py format` 并选择 `2`。
 - 观察日志中的**红色条目**（即新版新增的未翻译文本）。
+![prepare](https://raw.githubusercontent.com/Edward1949/renpy_translate_format/main/images/prepare_log.webp)
 ![log](https://raw.githubusercontent.com/Edward1949/renpy_translate_format/main/images/formaat_log.webp)
 ### 第四步：在 VS Code 中补全红色标记的翻译
 - 打开 VS Code，将 `format/` 文件夹添加到工作区。
