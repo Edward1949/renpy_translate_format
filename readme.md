@@ -126,11 +126,12 @@ python del_files.py [目录] [-y]
 **安全机制**：仅删除那些有对应 `xxx.rpy` 文件的中间文件，不会误删未完成合并的文件。
 #### interactive_format.py（命令行交互式主脚本）
 **功能**：提供文本菜单，集成全部功能。支持 `direct` 和 `subprocess` 两种执行模式。
-
+**界面预览**：  
+![Options](https://raw.githubusercontent.com/Edward1949/renpy_translate_format/main/images/Options.webp)
 #### gui_tkinter.py（图形界面主脚本）
 **功能**：基于 Tkinter 的图形界面，封装了所有命令行功能，适合不熟悉命令行的用户。  
 **界面预览**：  
-![Options](https://raw.githubusercontent.com/Edward1949/renpy_translate_format/main/images/Options.webp)
+![GUI](https://raw.githubusercontent.com/Edward1949/renpy_translate_format/main/images/GUI.webp)
 ```
 0. 准备文件（运行 prepare_files.py）
 1. 处理单个文件对
@@ -330,7 +331,7 @@ python format_strings.py ./format/scripts/commonE.rpy ./format/scripts/commonC.r
 1. **控制台输出中的 `未找到翻译的标识符: ['strings']`**  
    - 原因：普通翻译合并脚本（`format.py`）在处理字符串块时，由于`跳过 translate strings 块`的正则比较宽松，有时会将整个 `translate ... strings:` 块当成了一个无翻译内容的标识符，导致产生这条无关警告。  
    - 影响：不影响任何实际翻译内容，字符串块由 `format_strings.py` 单独处理。  
-   - 状态：可忽略，后续版本可能优化。
+   - 状态：可忽略，后续版本可能修复。
 
 2. **subprocess 模式下日志颜色丢失**  
    - 原因：也许是子进程的输出没有通过 `colorama` 着色。  
