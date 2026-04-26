@@ -208,8 +208,12 @@ def process_strings_translations(reference_file, original_file, output_file):
             extra_block_content = '\n'.join(extra_block)
             new_block_content = new_block_content.rstrip('\n') + '\n' + extra_block_content
         
-        # 构建输出文件内容：块前部分 + 新块 + 块后部分
-        result_content = ref_content[:block_start] + new_block_content + ref_content[block_end:]
+        # 获取原 translate 行（第一行）
+        first_line_end = ref_content.find('\n', block_start)
+        first_line = ref_content[block_start:first_line_end]  # 例如 "translate chinese strings:"
+        
+        # 构建输出文件内容：块前部分 + 第一行 + 换行 + 新块内容 + 块后部分
+        result_content = ref_content[:block_start] + first_line + '\n' + new_block_content + ref_content[block_end:]
         
         print(f"{colorama.Fore.GREEN}合并完成！输出文件: {output_file}{colorama.Style.RESET_ALL}")
         print(f"{colorama.Fore.GREEN}找到 {len(translations)} 个原文翻译项{colorama.Style.RESET_ALL}")
